@@ -1,0 +1,17 @@
+public.html
+src/main/webapp/public.html
+src/main/webapp/tests
+src/main/webapp/tests/*
+src/main/webapp/tests/**
+target/*
+target/**
+.idea
+build.gradle2
+war/*
+war/**
+build/*
+build/**
+*.iml
+**.iml
+*.gradle
+**.gradle
