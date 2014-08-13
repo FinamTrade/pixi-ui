@@ -1,10 +1,10 @@
 To start application type command:
 
-gradle jettyDraftWar
+gradle gwtSuperDev
 
 or:
 
-mvn gwt:run
+mvn gwt:compile gwt:run
 
 Then, open in browser:
 

@@ -35,11 +35,9 @@ gwt {
     gwtVersion='2.7.0-SNAPSHOT'
 
     modules 'ru.finam.canvasui.app'
+    devModules 'ru.finam.canvasui.appDev'
 
-    compiler {
-        enableClosureCompiler = true; // activates -XenableClosureCompiler
-        disableClassMetadata = true; // activates -XdisableClassMetadata
-        disableCastChecking = true; // activates -XdisableCastChecking
+    superDev {
     }
 
 }
@@ -58,6 +56,8 @@ task jettyDraftWar(type: JettyRunWar) {
     dependsOn draftWar
     dependsOn.remove('war')
     webApp=draftWar.archivePath
+    httpPort = 8888
+    contextPath = 'app'
 }
 
 afterEvaluate {
