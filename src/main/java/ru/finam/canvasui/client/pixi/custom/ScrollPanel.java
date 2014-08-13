@@ -93,7 +93,7 @@ public class ScrollPanel extends DisplayObjectContainer {
         scrollPanel.addScrollers();
         scrollPanel.setHitArea(maskBounds);
         setMouseOverEvents(scrollPanel, scrollPanel.getHorizonalScroller());
-
+        scrollPanel.setUpdateFunction(scrollPanel.getHorizonalScroller().newUpdateFunction());
         scrollPanel.setPosition(Point.newInstance(0, 0));
 
         return scrollPanel;

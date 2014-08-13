@@ -29,4 +29,8 @@ public class Texture extends JavaScriptObject {
         return this.height;
     }-*/;
 
+    public final native BaseTexture getBaseTexture() /*-{
+        return this.baseTexture;
+    }-*/;
+
 }

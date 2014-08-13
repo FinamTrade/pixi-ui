@@ -75,7 +75,15 @@ public class DisplayObject extends JavaScriptObject {
         return this.animationStep;
     }-*/;
 
-    public final native JavaScriptObject updateFunction() /*-{
+    public final native JavaScriptObject getUpdateFunction() /*-{
+        return this.updateFunction;
+    }-*/;
+
+    public final native void setUpdateFunction( JavaScriptObject func ) /*-{
+        this.updateFunction = func;
+    }-*/;
+
+    public final native JavaScriptObject newUpdateFunction() /*-{
         var d = this;
         var f = function(displayObject) {
             var aplhaDiff = displayObject.targetAlpha - displayObject.alpha;

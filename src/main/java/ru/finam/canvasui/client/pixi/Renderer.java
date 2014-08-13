@@ -2,6 +2,7 @@ package ru.finam.canvasui.client.pixi;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -27,12 +28,18 @@ public class Renderer extends JavaScriptObject {
         return new $wnd.PIXI.autoDetectRenderer(width, height);
     }-*/;
 
-    public final native void startAnimatedRendering(Stage stage) /*-{
+    public static native Renderer newCanvasRenderer(int width, int height) /*-{
+        return new $wnd.PIXI.CanvasRenderer(width, height);
+    }-*/;
+
+    public final native void startAnimatedRendering(Stage stage, JavaScriptObject updateFunctions) /*-{
         var renderer = this;
         $wnd.animate = function() {
-            //console.log('renderer.updateFunction = '+renderer.updateFunction);
-            if (!!renderer.updateFunction) {
-                renderer.updateFunction(renderer.updateFunction.displayObject);
+            if (!!updateFunctions) {
+                for (var index = 0; index < updateFunctions.length; ++index) {
+                    updateFunctions[index](updateFunctions[index].displayObject);
+                }
+
             }
 	        $wnd.requestAnimFrame($wnd.animate);
 	        renderer.render(stage);
@@ -42,10 +49,6 @@ public class Renderer extends JavaScriptObject {
 
     public final native String setClearBeforeRender(boolean b) /*-{
         this.clearBeforeRender = b;
-    }-*/;
-
-    public final native void setUpdateFunction(JavaScriptObject func) /*-{
-        this.updateFunction = func;
     }-*/;
 
     public final native void render(Stage stage) /*-{
@@ -68,8 +71,15 @@ public class Renderer extends JavaScriptObject {
         return renderer;
     }
 
-    public static Renderer addNewRenderer(RootPanel element, int width, int height) {
+    public static Renderer addNewAuoDetectRenderer(RootPanel element, int width, int height) {
         Renderer renderer = autoDetectRenderer(width, height);
+        element.clear(true);
+        element.getElement().appendChild(renderer.getView());
+        return renderer;
+    }
+
+    public static Renderer addNewCanvasRenderer(RootPanel element, int width, int height) {
+        Renderer renderer = newCanvasRenderer(width, height);
         element.clear(true);
         element.getElement().appendChild(renderer.getView());
         return renderer;

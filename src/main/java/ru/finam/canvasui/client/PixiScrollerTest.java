@@ -1,10 +1,17 @@
 package ru.finam.canvasui.client;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import ru.finam.canvasui.client.pixi.*;
 import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,12 +23,37 @@ import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
 public class PixiScrollerTest {
 
     private static final int BG_COLOR = 0xFFFFFF;
+    private static List<Texture> textures = new ArrayList<Texture>();
     private static final String SAMPLE_IMAGE1 = "img/city1.png";
     private static final String SAMPLE_IMAGE2 = "img/city2.png";
     private static final String SAMPLE_IMAGE3 = "img/funny.jpg";
     private static Renderer renderer;
 
     public static void start(String rendererContainerId) {
+        exportMyFunction(rendererContainerId);
+        JsArrayString assets = JsArrayString.createArray().cast();
+        assets.push(SAMPLE_IMAGE1);
+        assets.push(SAMPLE_IMAGE2);
+        assets.push(SAMPLE_IMAGE3);
+        loadAssets(rendererContainerId, assets);
+    }
+
+    private static native void loadAssets(String rendererContainerId, JsArrayString assetsToLoad) /*-{
+        var loader = new $wnd.PIXI.AssetLoader(assetsToLoad);
+        loader.onComplete = function() {
+            $wnd.PixiScrollerTest.onAssetsLoaded(rendererContainerId);
+        };
+        loader.load();
+    }-*/;
+
+    public static native void exportMyFunction(String rendererContainerId) /*-{
+        $wnd.PixiScrollerTest = {};
+        $wnd.PixiScrollerTest.onAssetsLoaded = function() {
+            $entry(@ru.finam.canvasui.client.PixiScrollerTest::assetsLoaded(Ljava/lang/String;)(rendererContainerId));
+        }
+    }-*/;
+
+    public static void assetsLoaded(String rendererContainerId) {
         RootPanel element = RootPanel.get(rendererContainerId);
         element.getElement().getStyle().setPadding(0, Style.Unit.PX);
         int width = element.getElement().getOffsetWidth();
@@ -29,16 +61,18 @@ public class PixiScrollerTest {
         //JsConsole.log("Renderer width = "+width);
         //JsConsole.log("Renderer height = "+height);
         LayoutedStage.exportJsObject();
-        renderer = Renderer.addNewRenderer(element, width, height);
+        renderer = Renderer.addNewAuoDetectRenderer(element, width, height);
         LayoutedStage stage = LayoutedStage.newInstance(BG_COLOR, true);
         //stage.addChild(newSampleContainerWithGraphics());
         //stage.addChild(newSampleImage(SAMPLE_IMAGE1));
         //stage.addChild(newSampleImage(SAMPLE_IMAGE2));
-        DisplayObjectContainer displayObjectContainer = fixedSizeScrollPanel1(newSampleImage(SAMPLE_IMAGE3));
-        stage.addChildToCenter(displayObjectContainer, width, height);
+        ScrollPanel scrollPanel = fixedSizeScrollPanel1(newSampleImage(SAMPLE_IMAGE3));
+        stage.addChildToCenter(scrollPanel, width, height);
         //JsConsole.log("displayObjectContainer getPosition x = "+displayObjectContainer.getPosition().getX());
         //stage.addChild(newSampleImage(SAMPLE_IMAGE2));
-        renderer.startAnimatedRendering(stage);
+        JsArray<JavaScriptObject> updateFunctions = JsArray.createArray().cast();
+        updateFunctions.push(scrollPanel.getUpdateFunction());
+        renderer.startAnimatedRendering(stage, updateFunctions);
     }
 
     private static DisplayObject testSprite() {
@@ -88,8 +122,6 @@ public class PixiScrollerTest {
         int width = innerPanel.getWidth();
         int height = innerPanel.getHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width / 2, height / 2);
-        JsConsole.log("scrollPanel.getHorizonalScroller().updateFunction() = " + scrollPanel.getHorizonalScroller().updateFunction());
-        renderer.setUpdateFunction(scrollPanel.getHorizonalScroller().updateFunction());
         return scrollPanel;
     }
 
