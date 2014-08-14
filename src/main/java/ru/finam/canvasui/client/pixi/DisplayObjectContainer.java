@@ -22,7 +22,7 @@ public class DisplayObjectContainer extends DisplayObject {
     }-*/;
 
     public final native JsArray<DisplayObject> getChildrens() /*-{
-        return new this.children;
+        return this.children;
     }-*/;
 
     public final native int getWidth() /*-{

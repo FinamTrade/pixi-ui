@@ -11,13 +11,7 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class DisplayObject extends JavaScriptObject {
 
-    private static final double DEFAULT_ANIMATION_STEP = 0.1;
-
     protected DisplayObject() {};
-
-    {
-        setAnimationStep(DEFAULT_ANIMATION_STEP);
-    }
 
     public final native Rectangle getBounds() /*-{
         return this.getBounds();
@@ -57,50 +51,6 @@ public class DisplayObject extends JavaScriptObject {
 
     public final native void setHitArea(Rectangle rect) /*-{
         this.hitArea = rect;
-    }-*/;
-
-    public final native void setTargetAlpha(double a) /*-{
-        this.targetAlpha = a;
-    }-*/;
-
-    public final native double getTargetAlpha() /*-{
-        return this.targetAlpha;
-    }-*/;
-
-    public final native void setAnimationStep(double a) /*-{
-        this.animationStep = a;
-    }-*/;
-
-    public final native double getAnimationStep() /*-{
-        return this.animationStep;
-    }-*/;
-
-    public final native JavaScriptObject getUpdateFunction() /*-{
-        return this.updateFunction;
-    }-*/;
-
-    public final native void setUpdateFunction( JavaScriptObject func ) /*-{
-        this.updateFunction = func;
-    }-*/;
-
-    public final native JavaScriptObject newUpdateFunction() /*-{
-        var d = this;
-        var f = function(displayObject) {
-            var aplhaDiff = displayObject.targetAlpha - displayObject.alpha;
-            if (!displayObject.animationStep) {
-                displayObject.animationStep = @ru.finam.canvasui.client.pixi.DisplayObject::DEFAULT_ANIMATION_STEP;
-            }
-            if (Math.abs(aplhaDiff) > Math.abs(displayObject.animationStep )
-                && ( !displayObject.draging)) {
-                if (aplhaDiff > 0) {
-                    displayObject.alpha += displayObject.animationStep
-                }
-                else
-                    displayObject.alpha -= displayObject.animationStep;
-            }
-        }
-        f.displayObject = d;
-        return f;
     }-*/;
 
     public final void setPosition(double x, double y) {

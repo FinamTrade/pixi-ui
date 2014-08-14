@@ -73,7 +73,6 @@ public class Renderer extends JavaScriptObject {
 
     public static Renderer addNewAuoDetectRenderer(RootPanel element, int width, int height) {
         Renderer renderer = autoDetectRenderer(width, height);
-        element.clear(true);
         element.getElement().appendChild(renderer.getView());
         return renderer;
     }

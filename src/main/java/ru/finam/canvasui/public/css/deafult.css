@@ -24,12 +24,30 @@ div.info-block {
 	text-align: center;
 }
 
-div#show-area {
-	padding: 10px;
+div#bottom-area {
     width: 100%;
     position: fixed;
     top: 100px;
     bottom: 0;
+}
+
+div#show-area {
+    width: 100%;
+    height: 100%;
+}
+
+div#menu-area {
+    text-align: center;
+}
+
+div.menu-item {
+    display: inline-block;
+    cursor: pointer;
+    padding: 7px;
+}
+
+div.menu-item-holder {
+    text-align: center;
 }
 
 div#top-area {

@@ -11,7 +11,7 @@ import ru.finam.canvasui.client.pixi.*;
  * Time: 12:06
  * To change this template use File | Settings | File Templates.
  */
-public class ScrollPanel extends DisplayObjectContainer {
+public class ScrollPanel extends CustomComponentContainer {
 
     static {
         exportJsObject();
@@ -23,15 +23,21 @@ public class ScrollPanel extends DisplayObjectContainer {
         $wnd.ScrollPanel = function(innerPanel) {
             $wnd.PIXI.DisplayObjectContainer.call(this);
             this.horizontalScroller = null;
+            this.certicalScroller = null;
             this.maskBounds = null;
             this.maskObject = null;
             this.innerPanel = innerPanel;
             this.scrollMaxX = 0;
+            this.scrollMaxY = 0;
 
             var thisScrollPanel = this;
 
             this.scrollXto = function(newPos) {
                 thisScrollPanel.innerPanel.position.x = thisScrollPanel.scrollMaxX * newPos;
+            }
+
+            this.scrollYto = function(newPos) {
+                thisScrollPanel.innerPanel.position.y = thisScrollPanel.scrollMaxY * newPos;
             }
 
         }
@@ -40,17 +46,24 @@ public class ScrollPanel extends DisplayObjectContainer {
     }-*/;
 
     private static native void setMouseOverEvents(DisplayObject mouserOverObject,
-                                                       HorizonalScroller horizonalScroller) /*-{
+                                                  Scroller horizonalScroller,
+                                                  Scroller verticalScroller) /*-{
 
         mouserOverObject.setInteractive(true);
         mouserOverObject.interactive = true;
 
 		mouserOverObject.mouseover = function(mouseData){
-            horizonalScroller.targetAlpha = 1;
+            if (!!horizonalScroller)
+                horizonalScroller.targetAlpha = 1;
+            if (!!verticalScroller)
+                verticalScroller.targetAlpha = 1;
         }
 
         mouserOverObject.mouseout = function(mouseData){
-            horizonalScroller.targetAlpha = 0;
+            if (!!horizonalScroller)
+                horizonalScroller.targetAlpha = 0;
+            if (!!verticalScroller)
+                verticalScroller.targetAlpha = 0;
         }
 
     }-*/;
@@ -63,19 +76,27 @@ public class ScrollPanel extends DisplayObjectContainer {
         return this.scrollXto;
     }-*/;
 
+    private native JavaScriptObject getScrollYto() /*-{
+        return this.scrollYto;
+    }-*/;
+
     private native void setScrollMaxX(double maxX) /*-{
         this.scrollMaxX = maxX;
+    }-*/;
+
+    private native void setScrollMaxY(double maxY) /*-{
+        this.scrollMaxY = maxY;
     }-*/;
 
     private native DisplayObject getInnerPanel() /*-{
         return this.innerPanel;
     }-*/;
 
-    public static ScrollPanel newInstance(DisplayObjectContainer innerPanel) {
-        return newInstance(innerPanel, innerPanel.getBounds());
+    public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, boolean drawBorders) {
+        return newInstance(innerPanel, innerPanel.getBounds(), drawBorders);
     }
 
-    public static ScrollPanel newInstance(DisplayObject innerPanel, Rectangle maskBounds) {
+    public static ScrollPanel newInstance(DisplayObject innerPanel, Rectangle maskBounds, boolean drawBorders) {
         ScrollPanel scrollPanel = newNativeInstance(innerPanel);
         scrollPanel.setMaskBounds(maskBounds);
         scrollPanel.addChild(innerPanel);
@@ -85,18 +106,41 @@ public class ScrollPanel extends DisplayObjectContainer {
                 Point.newInstance(0, 0));
         scrollPanel.getMaskObject().setPosition(Point.newInstance(0, 0));
         scrollPanel.setMask(scrollPanel.getMaskObject());
-        JsConsole.log("scrollPanel width = "+scrollPanel.getWidth());
+        if (drawBorders)
+            scrollPanel.drawBorders(maskBounds);
+        JsConsole.log("scrollPanel width = " + scrollPanel.getWidth());
         JsConsole.log("maskObject width = "+scrollPanel.getMaskObject().getBounds().getWidth());
         JsConsole.log("maskObject height = "+scrollPanel.getMaskObject().getBounds().getHeight());
         JsConsole.log("maskObject x = "+scrollPanel.getMaskObject().getBounds().getX());
         JsConsole.log("maskObject y = "+scrollPanel.getMaskObject().getBounds().getY());
         scrollPanel.addScrollers();
         scrollPanel.setHitArea(maskBounds);
-        setMouseOverEvents(scrollPanel, scrollPanel.getHorizonalScroller());
-        scrollPanel.setUpdateFunction(scrollPanel.getHorizonalScroller().newUpdateFunction());
+        setMouseOverEvents(scrollPanel, scrollPanel.getHorizonalScroller(), scrollPanel.getVerticalScroller());
         scrollPanel.setPosition(Point.newInstance(0, 0));
 
         return scrollPanel;
+    }
+
+    private void addHorizontalScroller(double k) {
+        Scroller horizonalScroller =
+                Scroller.newHorizontalInstance(getMaskBounds().getWidth(), k, getScrollXto());
+        setHorizonalScroller(horizonalScroller);
+        horizonalScroller.setAlpha(0);
+        addChild(horizonalScroller);
+        double y = getMaskObject().getBoundedHeight() - Scroller.DEFAULT_WIDE * 2;
+        horizonalScroller.setPosition(0, y);
+        horizonalScroller.setUpdateFunction(horizonalScroller.newUpdateFunction());
+    }
+
+    private void addVerticalScroller(double k) {
+        Scroller verticalScroller =
+                Scroller.newVerticalInstance(getMaskBounds().getHeight(), k, getScrollYto());
+        setVerticalScroller(verticalScroller);
+        verticalScroller.setAlpha(0);
+        addChild(verticalScroller);
+        double x = getMaskObject().getBoundedWidth() - Scroller.DEFAULT_WIDE * 2;
+        verticalScroller.setPosition(x, 0);
+        verticalScroller.setUpdateFunction(verticalScroller.newUpdateFunction());
     }
 
     private void addScrollers() {
@@ -104,21 +148,19 @@ public class ScrollPanel extends DisplayObjectContainer {
         double width2 = getMaskObject().getBoundedWidth();
         double maxScrollX = - ( width1 - width2 );
         setScrollMaxX(maxScrollX);
-        JsConsole.log("width1 "+width1);
-        JsConsole.log("width2 "+width2);
-        double k = width2 / width1;
-        HorizonalScroller horizonalScroller =
-                HorizonalScroller.newInstance(getMaskBounds().getWidth(), k, getScrollXto());
-        setHorizonalScroller(horizonalScroller);
-        horizonalScroller.setAlpha(0);
-        //horizonalScroller.addTo(this);
-        addChild(horizonalScroller);
-        //double y = getMaskObject().getBounds().getHeight() + getMaskObject().getBounds().getY();
-        double y = getMaskObject().getBoundedHeight() - HorizonalScroller.DEFAULT_WIDE * 2;
-        JsConsole.log("addScrollers y = "+y);
-        JsConsole.log("horizonalScroller y = "+horizonalScroller.getBounds().getY());
-        JsConsole.log("horizonalScroller h = "+horizonalScroller.getBounds().getHeight());
-        horizonalScroller.setPosition(0, y);
+        double kw = width2 / width1;
+        if (kw < 1) {
+            addHorizontalScroller(kw);
+        }
+
+        double height1 = getInnerPanel().getBoundedHeight();
+        double height2 = getMaskObject().getBoundedHeight();
+        double maxScrollY = - ( height1 - height2 );
+        setScrollMaxY(maxScrollY);
+        double kh = height2 / height1;
+        if (kh < 1) {
+            addVerticalScroller(kh);
+        }
     }
 
     private static Graphics newMaskObject(Rectangle bounds) {
@@ -132,12 +174,23 @@ public class ScrollPanel extends DisplayObjectContainer {
         return mask;
     }
 
-    public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, int width, int height) {
-        ScrollPanel scrollPanel = newInstance(innerPanel, Rectangle.newInstance(0, 0, width, height));
+    private void drawBorders(Rectangle bounds) {
+        Graphics graphics = Graphics.newInstance();
+        graphics.lineStyle(1, 0x555555, 1);
+        graphics.drawRect(bounds);
+        addChild(graphics);
+    }
+
+    public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, int width, int height, boolean drawBorders) {
+        ScrollPanel scrollPanel = newInstance(innerPanel, Rectangle.newInstance(0, 0, width, height), drawBorders);
         return scrollPanel;
     }
 
-    public final native HorizonalScroller getHorizonalScroller() /*-{
+    public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, int width, int height) {
+        return newInstance(innerPanel, width, height, false);
+    }
+
+    public final native Scroller getHorizonalScroller() /*-{
         return this.horizontalScroller;
     }-*/;
 
@@ -149,8 +202,16 @@ public class ScrollPanel extends DisplayObjectContainer {
         return this.maskObject;
     }-*/;
 
-    public final native void setHorizonalScroller(HorizonalScroller hs) /*-{
+    public final native void setHorizonalScroller(Scroller hs) /*-{
         this.horizontalScroller = hs;
+    }-*/;
+
+    public final native void setVerticalScroller(Scroller vs) /*-{
+        this.verticalScroller = vs;
+    }-*/;
+
+    public final native Scroller getVerticalScroller() /*-{
+        return this.verticalScroller;
     }-*/;
 
     public final native void setMaskBounds(Rectangle r) /*-{

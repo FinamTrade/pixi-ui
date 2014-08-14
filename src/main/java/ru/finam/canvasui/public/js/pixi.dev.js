@@ -2757,7 +2757,7 @@ PIXI.InteractionManager.prototype.onMouseUp = function(event)
 }
 
 /**
- * Tests if the current mouse coords hit a sprite
+ * tests if the current mouse coords hit a sprite
  *
  * @method hitTest
  * @param item {DisplayObject} The displayObject to test for a hit

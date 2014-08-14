@@ -35,6 +35,14 @@ public class Graphics extends DisplayObjectContainer {
         this.drawCircle(x, y, radius);
     }-*/;
 
+    public final native void drawEllipse( double x, double  y, double  width, double  height ) /*-{
+        this.drawEllipse(x, y, width, height);
+    }-*/;
+
+    public final native Texture generateTexture () /*-{
+        this.generateTexture();
+    }-*/;
+
     public final void drawRect(Rectangle rectangle) {
         drawRect(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
     }
