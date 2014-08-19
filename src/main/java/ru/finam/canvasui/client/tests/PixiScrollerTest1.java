@@ -1,13 +1,9 @@
-package ru.finam.canvasui.client.pixi.tests;
+package ru.finam.canvasui.client.tests;
 
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.RootPanel;
-import ru.finam.canvasui.client.pixi.*;
+import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
+import ru.finam.canvasui.client.pixi.Graphics;
 import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,5 +1,8 @@
 package ru.finam.canvasui.client;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import ru.finam.canvasui.client.pixi.tests.PixiScrollerTest5;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Superman
@@ -16,4 +19,7 @@ public class JsConsole {
         }
     }-*/;
 
+    public static native void stringifyLog(String s, Object t) /*-{
+        console.log(s + ' ' + t.width);
+    }-*/;
 }

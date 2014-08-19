@@ -1,10 +1,9 @@
-package ru.finam.canvasui.client.pixi.tests;
+package ru.finam.canvasui.client.tests;
 
 import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.pixi.Sprite;
 import ru.finam.canvasui.client.pixi.Texture;
 import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
 
 /**
  * Created by ikusch on 14.08.14.

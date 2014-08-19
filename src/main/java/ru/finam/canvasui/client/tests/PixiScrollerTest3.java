@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.pixi.tests;
+package ru.finam.canvasui.client.tests;
 
 import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.pixi.custom.LayoutedStage;

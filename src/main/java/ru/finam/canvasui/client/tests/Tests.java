@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.pixi.tests;
+package ru.finam.canvasui.client.tests;
 
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Style;
@@ -8,9 +8,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import ru.finam.canvasui.client.JsConsole;
-import ru.finam.canvasui.client.pixi.*;
+import ru.finam.canvasui.client.pixi.Renderer;
+import ru.finam.canvasui.client.pixi.Texture;
 import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public class Tests {
     public static native void exportMyFunction(String rendererContainerId) /*-{
         $wnd.PixiScrollerTest = {};
         $wnd.PixiScrollerTest.onAssetsLoaded = function() {
-            $entry(@ru.finam.canvasui.client.pixi.tests.Tests::assetsLoaded(Ljava/lang/String;)(rendererContainerId));
+            $entry(@ru.finam.canvasui.client.tests.Tests::assetsLoaded(Ljava/lang/String;)(rendererContainerId));
         }
     }-*/;
 
@@ -87,31 +87,39 @@ public class Tests {
         renderer.startAnimatedRendering(stage, stage.collectUpdateFunctions());
     }
 
-    public static void load(String rendererContainerId, String menuContainerId) {
+    public static void load(final String rendererContainerId, String menuContainerId) {
         addNewTest(rendererContainerId, new PixiScrollerTest1(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest2(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest3(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest4(), menuContainerId);
+        addNewTest(rendererContainerId, new PixiScrollerTest5(), menuContainerId, new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                PixiScrollerTest5.createRender(rendererContainerId);
+            }
+        }, "Tesrt5");
         currentTest = tests.get(0);
         start(rendererContainerId);
     }
 
-    private static PixiScrollerTest addNewTest(final String rendererContainerId, final PixiScrollerTest pixiScrollerTest, String menuContainerId) {
+    private static void addNewTest(final String rendererContainerId, final PixiScrollerTest pixiScrollerTest, String menuContainerId) {
+        addNewTest(rendererContainerId, pixiScrollerTest, menuContainerId, new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                currentTest = pixiScrollerTest;
+                start(rendererContainerId);
+            }
+        }, pixiScrollerTest.name());
+    }
+
+    private static void addNewTest(final String rendererContainerId, final PixiScrollerTest pixiScrollerTest, String menuContainerId, ClickHandler clickHandler, String name) {
         tests.add(pixiScrollerTest);
         FlowPanel flowPanel = new FlowPanel();
         flowPanel.getElement().addClassName(MENU_ITEM_HOLDER_CLASSNAME);
         FocusPanel panel = new FocusPanel();
         panel.getElement().setInnerHTML(""+pixiScrollerTest.name());
         panel.getElement().addClassName(MENU_ITEM_CLASSNAME);
-        panel.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                currentTest = pixiScrollerTest;
-                start(rendererContainerId);
-            }
-        });
+        panel.addClickHandler(clickHandler);
         flowPanel.add(panel);
         RootPanel.get(menuContainerId).add(flowPanel);
-        return pixiScrollerTest;
     }
 
 }

@@ -177,7 +177,7 @@ public class ScrollPanel extends CustomComponentContainer {
     private void drawBorders(Rectangle bounds) {
         Graphics graphics = Graphics.newInstance();
         graphics.lineStyle(1, 0x555555, 1);
-        graphics.drawRect(bounds);
+        graphics.drawRect(Rectangle.newInstance(bounds.getX(), bounds.getY(), (int)(bounds.getWidth() - 1), (int)(bounds.getHeight() - 1)));
         addChild(graphics);
     }
 
