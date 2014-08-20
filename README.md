@@ -4,8 +4,4 @@ gradle gwtSuperDev
 
 or:
 
-mvn gwt:compile gwt:run
-
-Then, open in browser:
-
-http://localhost:XXXX/test1.html
+mvn gwt:compile gwt:run-codeserver
