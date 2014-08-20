@@ -3,8 +3,6 @@ package ru.finam.canvasui.client.js.pixi;
 import com.google.gwt.core.client.js.JsProperty;
 import com.google.gwt.core.client.js.JsType;
 
-import java.util.concurrent.Callable;
-
 /**
  * Created by ikusch on 19.08.14.
  */
@@ -59,5 +57,10 @@ public interface DisplayObject extends JsObject {
 
     @JsProperty(value = "targetAlpha")
     double getTargetAlpha();
+
+    /*
+    @JsProperty(value = "mouseover")
+    void setMouseover(MouseEventListener t);
+    */
 
 }

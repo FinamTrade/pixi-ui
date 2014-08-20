@@ -7,8 +7,6 @@ import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
 
-import java.util.concurrent.Callable;
-
 /**
  * Created by ikusch on 19.08.14.
  */
@@ -99,6 +97,14 @@ public class ScrollPanel extends CustomComponentContainer {
     private static void setMouseOverEvents(ScrollPanel scrollPanel) {
         scrollPanel.displayObjectContainer().setInteractive(true);
         setNativeMouseOverEvents(scrollPanel, scrollPanel.displayObjectContainer());
+        /*
+        scrollPanel.displayObjectContainer().setMouseover(new MouseEventListener() {
+            @Override
+            public void onEvent() {
+                JsConsole.log("setMouseover!");
+            }
+        });
+        */
     }
 
     public static void mouseOvered(ScrollPanel scrollPanel) {
