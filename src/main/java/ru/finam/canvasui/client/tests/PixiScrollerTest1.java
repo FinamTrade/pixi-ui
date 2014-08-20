@@ -1,9 +1,9 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.pixi.Graphics;
-import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
+
+import ru.finam.canvasui.client.js.pixi.*;
+import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,8 +17,8 @@ public class PixiScrollerTest1 extends PixiScrollerTest {
     private static final int BG_COLOR = 0xFFFFFF;
 
     private static DisplayObjectContainer newSampleContainerWithGraphics() {
-        DisplayObjectContainer sampleContainer = DisplayObjectContainer.newInstance();
-        Graphics graphics = Graphics.newInstance();
+        DisplayObjectContainer sampleContainer = DisplayObjectContainerFactory.newInstance();
+        Graphics graphics = GraphicsFactory.newInstance();
         sampleContainer.addChild(graphics);
         graphics.lineStyle(1, 0x000000, 1);
         graphics.drawRect(0, 0, 30, 30);
@@ -28,9 +28,9 @@ public class PixiScrollerTest1 extends PixiScrollerTest {
     }
 
     public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = LayoutedStage.newInstance(BG_COLOR, true);
+        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(newSampleImage(images[2]));
-        stage.addChildToCenter(scrollPanel, width, height);
+        stage.addChildToCenter(scrollPanel.displayObjectContainer(), width, height);
         return stage;
     }
 
@@ -39,8 +39,8 @@ public class PixiScrollerTest1 extends PixiScrollerTest {
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(DisplayObjectContainer innerPanel) {
-        int width = innerPanel.getWidth();
-        int height = innerPanel.getHeight();
+        int width = (int) innerPanel.getWidth();
+        int height = (int) innerPanel.getHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width / 2, height / 2);
         return scrollPanel;
     }

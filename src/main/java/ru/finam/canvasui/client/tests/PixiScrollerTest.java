@@ -1,9 +1,8 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.pixi.Sprite;
-import ru.finam.canvasui.client.pixi.Texture;
-import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.pixi.*;
+import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 
 /**
  * Created by ikusch on 14.08.14.
@@ -16,9 +15,9 @@ public abstract class PixiScrollerTest {
 
     abstract String name();
 
-    protected static DisplayObjectContainer newSampleImage(String path) {
-        Texture texture = Texture.fromImage(path);
-        Sprite sprite = Sprite.newInstance(texture);
+    protected static Sprite newSampleImage(String path) {
+        Texture texture = TextureFactory.fromImage(path);
+        Sprite sprite = SpriteFactory.newInstance(texture);
         sprite.setWidth(texture.getWidth());
         sprite.setHeight(texture.getHeight());
         return sprite;

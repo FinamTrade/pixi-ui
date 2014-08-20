@@ -2,6 +2,7 @@ package ru.finam.canvasui.client;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import ru.finam.canvasui.client.pixi.tests.PixiScrollerTest5;
+import ru.finam.canvasui.client.tests.js.JsObject;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +20,7 @@ public class JsConsole {
         }
     }-*/;
 
-    public static native void stringifyLog(String s, Object t) /*-{
-        console.log(s + ' ' + t.width);
+    public static native void stringifyLog(String s, JsObject t) /*-{
+        console.log(s + ' ' + JSON.stringify(t));
     }-*/;
 }

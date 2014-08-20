@@ -8,9 +8,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import ru.finam.canvasui.client.JsConsole;
-import ru.finam.canvasui.client.pixi.Renderer;
-import ru.finam.canvasui.client.pixi.Texture;
-import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.js.pixi.*;
+import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class Tests {
     private static final String SAMPLE_IMAGE2 = "img/city2.png";
     private static final String SAMPLE_IMAGE3 = "img/funny.jpg";
     private static final String SAMPLE_IMAGE4 = "img/funny2.jpg";
-    private static Renderer renderer;
+    private static UpdatableRenderer renderer;
     private static List<PixiScrollerTest> tests = new ArrayList<PixiScrollerTest>();
     private static PixiScrollerTest currentTest;
     private static String[] images = newImagesArray();
@@ -77,14 +76,10 @@ public class Tests {
         element.clear(true);
         int width = element.getElement().getOffsetWidth();
         int height = element.getElement().getClientHeight();
-        JsConsole.log("Renderer width = "+width);
-        JsConsole.log("Renderer height = " + height);
-        LayoutedStage.exportJsObject();
-        renderer = Renderer.addNewAuoDetectRenderer(element, width, height);
+        renderer = UpdatableRenderer.addNewAuoDetectRenderer(element, width, height);
+        element.getElement().appendChild(renderer.getView());
         LayoutedStage stage = currentTest.newTestStage(width, height, images);
-        //JsConsole.log("displayObjectContainer getPosition x = "+displayObjectContainer.getPosition().getX());
-        //stage.addChild(newSampleImage(SAMPLE_IMAGE2));
-        renderer.startAnimatedRendering(stage, stage.collectUpdateFunctions());
+        renderer.startAnimatedRendering(stage.stage(), stage.collectUpdateFunctions());
     }
 
     public static void load(final String rendererContainerId, String menuContainerId) {
@@ -92,11 +87,7 @@ public class Tests {
         addNewTest(rendererContainerId, new PixiScrollerTest2(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest3(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest4(), menuContainerId);
-        addNewTest(rendererContainerId, new PixiScrollerTest5(), menuContainerId, new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                PixiScrollerTest5.createRender(rendererContainerId);
-            }
-        }, "Tesrt5");
+        addNewTest(rendererContainerId, new PixiScrollerTest6(), menuContainerId);
         currentTest = tests.get(0);
         start(rendererContainerId);
     }

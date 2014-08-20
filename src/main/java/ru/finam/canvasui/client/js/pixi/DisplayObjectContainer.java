@@ -1,0 +1,33 @@
+package ru.finam.canvasui.client.js.pixi;
+
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.js.JsProperty;
+import com.google.gwt.core.client.js.JsType;
+
+/**
+ * Created by ikusch on 19.08.14.
+ */
+@JsType(prototype = "$wnd.PIXI.DisplayObjectContainer")
+public interface DisplayObjectContainer extends DisplayObject {
+
+    void addChild(DisplayObject child);
+
+    @JsProperty(value = "children")
+    Array<DisplayObject> getChildren();
+
+    @JsProperty(value = "children")
+    void setChildren(Array<DisplayObject> children);
+
+    @JsProperty(value = "width")
+    double getWidth();
+
+    @JsProperty(value = "width")
+    void setWidth(double width);
+
+    @JsProperty(value = "height")
+    double getHeight();
+
+    @JsProperty(value = "height")
+    void setHeight(double height);
+
+}

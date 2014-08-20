@@ -1,0 +1,51 @@
+package ru.finam.canvasui.client.js.pixi;
+
+import com.google.gwt.canvas.client.Canvas;
+import com.google.gwt.user.client.ui.RootPanel;
+
+/**
+ * Created by ikusch on 19.08.14.
+ */
+public class RendererFactory {
+
+    public static native Renderer autoDetectRenderer(double width, double height,
+                                                     Canvas view, boolean transparent, boolean antialias) /*-{
+        return new $wnd.PIXI.autoDetectRenderer(width, height, view, transparent, antialias);
+    }-*/;
+
+    public static native Renderer autoDetectRenderer(double width, double height) /*-{
+        return new $wnd.PIXI.autoDetectRenderer(width, height);
+    }-*/;
+
+    public static native Renderer newCanvasRenderer(double width, double height) /*-{
+        return new $wnd.PIXI.CanvasRenderer(width, height);
+    }-*/;
+
+    public static Renderer autoDetectRenderer(int width, int height, boolean clearBeforeRender) {
+        Renderer renderer = autoDetectRenderer(width, height);
+        renderer.setClearBeforeRender(clearBeforeRender);
+        return renderer;
+    }
+
+    public static Renderer autoDetectRenderer(int width, int height,
+                                              Canvas view, boolean transparent,
+                                              boolean antialias, boolean clearBeforeRender) {
+        Renderer renderer = autoDetectRenderer(width, height, view, transparent, antialias);
+        renderer.setClearBeforeRender(clearBeforeRender);
+        return renderer;
+    }
+
+    public static Renderer addNewAuoDetectRenderer(RootPanel element, int width, int height) {
+        Renderer renderer = autoDetectRenderer(width, height);
+        element.getElement().appendChild(renderer.getView());
+        return renderer;
+    }
+
+    public static Renderer addNewCanvasRenderer(RootPanel element, int width, int height) {
+        Renderer renderer = newCanvasRenderer(width, height);
+        element.clear(true);
+        element.getElement().appendChild(renderer.getView());
+        return renderer;
+    }
+
+}

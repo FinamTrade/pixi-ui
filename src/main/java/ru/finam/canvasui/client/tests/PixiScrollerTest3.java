@@ -1,8 +1,9 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
+
+import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
+import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
 
 /**
  * Created by ikusch on 14.08.14.
@@ -10,9 +11,9 @@ import ru.finam.canvasui.client.pixi.custom.ScrollPanel;
 public class PixiScrollerTest3 extends PixiScrollerTest {
 
     public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = LayoutedStage.newInstance(BG_COLOR, true);
+        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
         ScrollPanel scrollPanel = fixedSizeScrollPanel(newSampleImage(images[1]));
-        stage.addChildToCenter(scrollPanel, width, height);
+        stage.addChildToCenter(scrollPanel.displayObjectContainer(), width, height);
         return stage;
     }
 
@@ -21,9 +22,10 @@ public class PixiScrollerTest3 extends PixiScrollerTest {
     }
 
     private static ScrollPanel fixedSizeScrollPanel(DisplayObjectContainer innerPanel) {
-        int width = innerPanel.getWidth();
-        int height = innerPanel.getHeight();
+        int width = (int) innerPanel.getWidth();
+        int height = (int) innerPanel.getHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width, height, true);
         return scrollPanel;
     }
+
 }

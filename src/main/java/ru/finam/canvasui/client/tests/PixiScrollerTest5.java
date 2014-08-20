@@ -7,7 +7,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import ru.finam.canvasui.client.JsConsole;
-import ru.finam.canvasui.client.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 
 /**
  * Created by ikusch on 15.08.14.
