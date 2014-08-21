@@ -7,103 +7,117 @@ import ru.finam.canvasui.client.js.pixi.*;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class CustomComponentContainer implements UpdatableComponent {
+public class CustomComponentContainer {
 
     public static final double DEFAULT_ANIMATION_STEP = 0.1;
 
     private Graphics mask;
     private Point position;
+    private double animationStep = DEFAULT_ANIMATION_STEP;
+    private DisplayObjectContainer mainComponent;
+    private double targetAlpha;
+    private boolean dragging;
 
-    protected CustomComponentContainer(DisplayObjectContainer displayObjectContainer) {
-        displayObjectContainer(displayObjectContainer);
+    protected CustomComponentContainer(DisplayObjectContainer mainComponent) {
+        setMainComponent(mainComponent);
     }
 
     protected CustomComponentContainer() {
         this(DisplayObjectContainerFactory.newInstance());
     }
 
-    protected final native void displayObjectContainer(DisplayObjectContainer displayObjectContainer) /*-{
-        this.mainComponent = displayObjectContainer;
-    }-*/;
+    protected void setMainComponent(DisplayObjectContainer mainComponent) {
+        this.mainComponent = mainComponent;
+    }
 
-    public final native DisplayObjectContainer displayObjectContainer() /*-{
+    public DisplayObjectContainer getMainComponent() {
         return this.mainComponent;
-    }-*/;
+    }
 
-    public final native void setTargetAlpha(double a) /*-{
-        this.mainComponent.targetAlpha = a;
-    }-*/;
+    public void setTargetAlpha(double a) {
+        this.targetAlpha = a;
+    }
 
-    public final native double getTargetAlpha() /*-{
-        return this.mainComponent.targetAlpha;
-    }-*/;
+    public double getTargetAlpha() {
+        return this.targetAlpha;
+    }
 
-    public final native void setAnimationStep(double a) /*-{
-        this.mainComponent.animationStep = a;
-    }-*/;
+    public void setAlpha(double a) {
+        getMainComponent().setAlpha(a);
+    }
 
-    public final native double getAnimationStep() /*-{
-        return this.mainComponent.animationStep;
-    }-*/;
+    public double getAlpha() {
+        return getMainComponent().getAlpha();
+    }
 
-    public final native JsObject getUpdateFunction() /*-{
-        return this.mainComponent.updateFunction;
-    }-*/;
+    public void setAnimationStep(double a) {
+        this.animationStep = a;
+    }
 
-    public final native void setUpdateFunction( JsObject func ) /*-{
-        this.mainComponent.updateFunction = func;
-    }-*/;
+    public double getAnimationStep() {
+        return this.animationStep;
+    }
 
-    public final native void setDragging( boolean b ) /*-{
-        this.mainComponent.dragging = b;
-    }-*/;
+    public JsObject getUpdateFunction(){
+        return getMainComponent().getUpdateFunction();
+    }
 
-    public final native boolean isDragging() /*-{
-        return this.mainComponent.dragging;
-    }-*/;
+    public void setUpdateFunction( JsObject func ) {
+        getMainComponent().setUpdateFunction(func);
+    }
 
-    public final native JsObject newUpdateFunction() /*-{
-        var d = this.mainComponent;
-        var f = function(displayObject) {
-            //console.log('UpdateFunction!');
-            var aplhaDiff = displayObject.targetAlpha - displayObject.alpha;
-            if (!displayObject.animationStep) {
-                displayObject.animationStep = @ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer::DEFAULT_ANIMATION_STEP;
-            }
-            if (Math.abs(aplhaDiff) > Math.abs(displayObject.animationStep )
-                && ( !displayObject.dragging)) {
-                if (aplhaDiff > 0) {
-                    displayObject.alpha += displayObject.animationStep
-                }
-                else
-                    displayObject.alpha -= displayObject.animationStep;
-            }
+    public void setDragging( boolean b ) {
+        this.dragging = b;
+    }
+
+    public boolean isDragging() {
+        return this.dragging;
+    }
+
+    public JsObject newUpdateFunction() {
+        return newUpdateFunction(this);
+    }
+
+    public final native JsObject newUpdateFunction(CustomComponentContainer that) /*-{
+        var f = function() {
+            that.@ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer::doUpdateFunction()();
         }
-        f.displayObject = d;
         return f;
     }-*/;
 
+    public void doUpdateFunction() {
+        double aplhaDiff = getTargetAlpha() - getAlpha();
+        if (Math.abs(aplhaDiff) > Math.abs( getAnimationStep() )
+                && ( !isDragging())) {
+            if (aplhaDiff > 0) {
+                setAlpha(getAlpha() + getAnimationStep());
+            }
+            else
+                setAlpha(getAlpha() - getAnimationStep());
+        }
+    }
+
     public void addChild(DisplayObject child) {
-        displayObjectContainer().addChild(child);
+        getMainComponent().addChild(child);
     }
 
     public void setMask(Graphics mask) {
-        displayObjectContainer().setMask(mask);
+        getMainComponent().setMask(mask);
     }
 
     public double getWidth() {
-        return displayObjectContainer().getWidth();
+        return getMainComponent().getWidth();
     }
 
     public void setHitArea(Rectangle hitArea) {
-        displayObjectContainer().setHitArea(hitArea);
+        getMainComponent().setHitArea(hitArea);
     }
 
     public void setPosition(Point position) {
-        displayObjectContainer().setPosition(position);
+        getMainComponent().setPosition(position);
     }
 
     public void setAlpha(int alpha) {
-        this.displayObjectContainer().setAlpha(alpha);
+        this.getMainComponent().setAlpha(alpha);
     }
 }

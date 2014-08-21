@@ -10,143 +10,77 @@ import ru.finam.canvasui.client.js.pixi.*;
 public class Scroller extends CustomComponentContainer {
 
     public static final int DEFAULT_WIDE = 3;
-    public static final int EDGE_WIDE = 4;
     public static final int DEFAULT_COLOR = 0x000000;
     public static final double DEFAULT_ALPHA = 0.6;
     public static final double DRAGGING_ALPHA = 0.9;
     public static final double MIN_LENGTH = 15;
     private static final double SCROLLER_EDGE_LENGTH = 4;
 
+    private DisplayObjectContainer scrollerContainer;
+    private Orientation orientation;
+    private Sprite scrollerMiddle;
+    private Sprite scrollerForward;
+    private Sprite scrollerTail;
+    private double touchStartDiff;
+    private double endEdge;
+    private double k;
+    private double scrollPosition;
+    private ScrollCallback scrollCallback;
+
     public static enum Orientation {
         HORIZONTAL, VERTICAL;
-
-        public static Orientation getByOrdinal(int orientation) {
-            return values()[orientation];
-        }
     }
 
     protected Scroller(double k,
                        double scrollPosition,
-                       JsObject scrollCallback, Orientation orientation) {
+                       ScrollCallback scrollCallback, Orientation orientation, double length) {
         super();
-        initComponent(k, scrollPosition, scrollCallback, orientation.ordinal());
-        setDragging(false);
-    }
-
-    private final native void initComponent(double k,
-                                            double scrollPosition,
-                                            JsObject scrollCallback,
-                                            int orientationId) /*-{
-        this.k = k;
         this.scrollPosition = scrollPosition;
+        this.orientation = orientation;
         this.scrollCallback = scrollCallback;
-        this.orientationId = orientationId;
-    }-*/;
-
-    private final native void setScrollerContainer(DisplayObjectContainer scrollerContainer) /*-{
-        this.scrollerContainer = scrollerContainer;
-    }-*/;
-
-    private final native DisplayObjectContainer getScrollerContainer() /*-{
-        return this.scrollerContainer;
-    }-*/;
-
-    public final native void setOrientationId(int o) /*-{
-        this.orientationId = o;
-    }-*/;
-
-    public final native int getOrientationId() /*-{
-        return this.orientationId;
-    }-*/;
-
-    public final native void setScrollerMiddle(Sprite scrollerMiddle) /*-{
-        this.scrollerMiddle = scrollerMiddle;
-    }-*/;
-
-    public final native Sprite getScrollerMiddle() /*-{
-        return this.scrollerMiddle;
-    }-*/;
-
-    public final native void setScrollerForward(Sprite scrollerForward) /*-{
-        this.scrollerForward = scrollerForward;
-    }-*/;
-
-    public final native Sprite getScrollerForward() /*-{
-        return this.scrollerForward;
-    }-*/;
-
-    public final native void setScrollerTail(Sprite scrollerTail) /*-{
-        this.scrollerTail = scrollerTail;
-    }-*/;
-
-    public final native Sprite getScrollerTail() /*-{
-        return this.scrollerTail;
-    }-*/;
-
-    public final native void setTouchStartDiff(double d) /*-{
-        this.touchStartDiff = d;
-    }-*/;
-
-    public final native double getTouchStartDiff() /*-{
-        return this.touchStartDiff;
-    }-*/;
-
-    public final native double getEndEdge() /*-{
-        return this.endEdge;
-    }-*/;
-
-    public final native void setEndEdge(double d) /*-{
-        this.endEdge = d;
-    }-*/;
-
-    public final native void doScrollCallback(double d) /*-{
-        this.scrollCallback(d);
-    }-*/;
-
-    public final void orientation(Orientation orientation) {
-        setOrientationId(orientation.ordinal());
+        this.k = k;
+        setDragging(false);
+        addGraphics(length, orientation);
     }
 
-    public final Orientation orientation() {
-        return Orientation.getByOrdinal(getOrientationId());
-    };
+    public void doScrollCallback(double d) {
+        scrollCallback.onScroll(d);
+    }
 
-    private static Scroller newInstance(double length, double k, JsObject scrollCallback, Orientation orientation) {
+    private static Scroller newInstance(double length, double k, ScrollCallback scrollCallback, Orientation orientation) {
         return newInstance(length, k, 0, scrollCallback, orientation);
     }
 
     private static Scroller newInstance(double length, double k,
-                                        double scrollPosition, JsObject scrollCallback, Orientation orientation) {
-        Scroller horizonalScroller = new Scroller(k, scrollPosition, scrollCallback, orientation);
-        horizonalScroller.addGraphics(length, orientation);
-        return horizonalScroller;
+                                        double scrollPosition, ScrollCallback scrollCallback, Orientation orientation) {
+        return new Scroller(k, scrollPosition, scrollCallback, orientation, length);
     }
 
-    public static Scroller newHorizontalInstance(double width, double k, JsObject scrollCallback) {
+    public static Scroller newHorizontalInstance(double width, double k, ScrollCallback scrollCallback) {
         return newInstance(width, k, 0, scrollCallback, Orientation.HORIZONTAL);
     }
 
-    public static Scroller newVerticalInstance(double width, double k, JsObject scrollCallback) {
+    public static Scroller newVerticalInstance(double width, double k, ScrollCallback scrollCallback) {
         return newInstance(width, k, 0, scrollCallback, Orientation.VERTICAL);
     }
 
-    private static double touchStartDiff(MouseEvent data, TouchEvent that, Scroller thisScroller) {
+    private double touchStartDiff(MouseEvent data, TouchEvent that) {
         double coord1 = 0;
         double coord2 = 0;
-        if (thisScroller.orientation().equals(Orientation.HORIZONTAL)) {
+        if (this.orientation.equals(Orientation.HORIZONTAL)) {
             coord1 = data.getLocalPosition(that.getParent()).getX();
-            coord2 = thisScroller.getScrollerMiddle().getPosition().getX();
+            coord2 = this.scrollerMiddle.getPosition().getX();
         }
-        if (thisScroller.orientation().equals(Orientation.VERTICAL)) {
+        if (this.orientation.equals(Orientation.VERTICAL)) {
             coord1 = data.getLocalPosition(that.getParent()).getY();
-            coord2 = thisScroller.getScrollerMiddle().getPosition().getY();
+            coord2 = this.scrollerMiddle.getPosition().getY();
         }
         double touchStartDiff = coord1 - SCROLLER_EDGE_LENGTH -
                 (coord2 - SCROLLER_EDGE_LENGTH);
         return touchStartDiff;
     }
 
-    public final static void touchStart(MouseEvent data, TouchEvent that, Scroller thisScroller) {
+    public void touchStart(MouseEvent data, TouchEvent that) {
         // stop the default event...
         data.getOriginalEvent().preventDefault();
         // store a reference to the data
@@ -154,49 +88,48 @@ public class Scroller extends CustomComponentContainer {
         // we want to track the movement of this particular touch
         that.setData(data);
         that.setDragging(true);
-        thisScroller.getScrollerContainer().setAlpha(DRAGGING_ALPHA);
-        thisScroller.setDragging(true);
-        double touchStartDiff = touchStartDiff(data, that, thisScroller);
-        thisScroller.setTouchStartDiff(touchStartDiff);
+        this.scrollerContainer.setAlpha(DRAGGING_ALPHA);
+        this.setDragging(true);
+        double touchStartDiff = touchStartDiff(data, that);
+        this.touchStartDiff = touchStartDiff;
     }
 
-    public final static void touchEnd(MouseEvent data, TouchEvent that, Scroller thisScroller) {
-        thisScroller.getScrollerContainer().setAlpha(DEFAULT_ALPHA);
+    public void touchEnd(MouseEvent data, TouchEvent that) {
+        this.scrollerContainer.setAlpha(DEFAULT_ALPHA);
         that.setDragging(false);
-        thisScroller.setDragging(false);
+        this.setDragging(false);
         that.setData(null);
     }
 
-    public final static double touchMoveNewCoord(MouseEvent data, TouchEvent that, Scroller thisScroller) {
+    public double touchMoveNewCoord(MouseEvent data, TouchEvent that) {
         double newCoord = 0;
-        if (thisScroller.orientation().equals(Orientation.HORIZONTAL)) {
-            newCoord = that.getData().getLocalPosition(that.getParent()).getX() - thisScroller.getTouchStartDiff();
+        if (this.orientation.equals(Orientation.HORIZONTAL)) {
+            newCoord = that.getData().getLocalPosition(that.getParent()).getX() - this.touchStartDiff;
         }
-        if (thisScroller.orientation().equals(Orientation.VERTICAL)) {
-            newCoord = that.getData().getLocalPosition(that.getParent()).getY() - thisScroller.getTouchStartDiff();
+        if (this.orientation.equals(Orientation.VERTICAL)) {
+            newCoord = that.getData().getLocalPosition(that.getParent()).getY() - this.touchStartDiff;
         }
         return newCoord;
     }
 
-    public final static void touchMoveUpdateCoord(double newCoord, double startEdge, MouseEvent data, TouchEvent that, Scroller thisScroller) {
-        if (thisScroller.orientation().equals(Orientation.HORIZONTAL)) {
+    public void touchMoveUpdateCoord(double newCoord, double startEdge, MouseEvent data, TouchEvent that) {
+        if (this.orientation.equals(Orientation.HORIZONTAL)) {
             that.getPosition().setX(newCoord);
-            thisScroller.getScrollerForward().getPosition().setX( newCoord - startEdge );
-            thisScroller.getScrollerTail().getPosition().setX( newCoord + thisScroller.getScrollerMiddle().getWidth() );
+            this.scrollerForward.getPosition().setX( newCoord - startEdge );
+            this.scrollerTail.getPosition().setX( newCoord + this.scrollerMiddle.getWidth() );
         }
-        if (thisScroller.orientation().equals(Orientation.VERTICAL)) {
+        if (this.orientation.equals(Orientation.VERTICAL)) {
             that.getPosition().setY(newCoord);
-            thisScroller.getScrollerForward().getPosition().setY( newCoord - startEdge );
-            thisScroller.getScrollerTail().getPosition().setY( newCoord + thisScroller.getScrollerMiddle().getHeight() );
+            this.scrollerForward.getPosition().setY( newCoord - startEdge );
+            this.scrollerTail.getPosition().setY( newCoord + this.scrollerMiddle.getHeight() );
         }
     }
 
-    public final static void touchMove(MouseEvent data, TouchEvent that, Scroller thisScroller) {
-        //JsConsole.log("touchMove! "+that.isDragging());
+    public void touchMove(MouseEvent data, TouchEvent that) {
         if(that.getDragging())
         {
-            double newCoord = touchMoveNewCoord(data, that, thisScroller);
-            double endEdge = thisScroller.getEndEdge();
+            double newCoord = touchMoveNewCoord(data, that);
+            double endEdge = this.endEdge;
             double startEdge = SCROLLER_EDGE_LENGTH;
             if (newCoord > endEdge) {
                 newCoord = endEdge;
@@ -204,33 +137,33 @@ public class Scroller extends CustomComponentContainer {
             if (newCoord < startEdge) {
                 newCoord = startEdge;
             }
-            touchMoveUpdateCoord(newCoord, startEdge, data, that, thisScroller);
+            touchMoveUpdateCoord(newCoord, startEdge, data, that);
             double newScrollerPosition = (newCoord - startEdge) / (endEdge - startEdge);
-            thisScroller.doScrollCallback(newScrollerPosition);
+            this.doScrollCallback(newScrollerPosition);
         }
     }
 
-    private final native void setDraggable() /*-{
+    private final native void createDraggable(Sprite scrollerMiddle) /*-{
 
         var thisScroller = this;
 
         // use the mousedown and touchstart
-        thisScroller.scrollerMiddle.mousedown = thisScroller.scrollerMiddle.touchstart = function(data)
+        scrollerMiddle.mousedown = scrollerMiddle.touchstart = function(data)
         {
-            @ru.finam.canvasui.client.js.pixi.custom.Scroller::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;Lru/finam/canvasui/client/js/pixi/custom/Scroller;)(data, this, thisScroller);
+            thisScroller.@ru.finam.canvasui.client.js.pixi.custom.Scroller::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         };
 
         // set the events for when the mouse is released or a touch is released
-        thisScroller.scrollerMiddle.mouseup = thisScroller.scrollerMiddle.mouseupoutside =
-            thisScroller.scrollerMiddle.touchend = thisScroller.scrollerMiddle.touchendoutside = function(data)
+        scrollerMiddle.mouseup = scrollerMiddle.mouseupoutside =
+            scrollerMiddle.touchend = scrollerMiddle.touchendoutside = function(data)
         {
-            @ru.finam.canvasui.client.js.pixi.custom.Scroller::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;Lru/finam/canvasui/client/js/pixi/custom/Scroller;)(data, this, thisScroller);
+            thisScroller.@ru.finam.canvasui.client.js.pixi.custom.Scroller::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         };
 
         // set the callbacks for when the mouse or a touch moves
-        thisScroller.scrollerMiddle.mousemove = thisScroller.scrollerMiddle.touchmove = function(data)
+        scrollerMiddle.mousemove = scrollerMiddle.touchmove = function(data)
         {
-            @ru.finam.canvasui.client.js.pixi.custom.Scroller::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;Lru/finam/canvasui/client/js/pixi/custom/Scroller;)(data, this, thisScroller);
+            thisScroller.@ru.finam.canvasui.client.js.pixi.custom.Scroller::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         }
     }-*/;
 
@@ -300,16 +233,16 @@ public class Scroller extends CustomComponentContainer {
 
     private final void addGraphics(double length, Orientation orientation) {
         DisplayObjectContainer scrollerContainer = DisplayObjectContainerFactory.newInstance();
-        setScrollerContainer(scrollerContainer);
+        this.scrollerContainer = scrollerContainer;
         Texture textureScrollerForward = TextureFactory.fromImage(getScrollerForwardTexturePath(orientation));
         Sprite scrollerForward = SpriteFactory.newInstance(textureScrollerForward);
-        setScrollerForward(scrollerForward);
+        this.scrollerForward = scrollerForward;
         scrollerContainer.addChild(scrollerForward);
         scrollerForward.setPosition(PointFactory.newInstance(0, 0));
 
         Texture textureScrollerMIddle = TextureFactory.fromImage(getScrollerMiddleTexturePath(orientation));
         Sprite scrollerMiddle = SpriteFactory.newInstance(textureScrollerMIddle);
-        setScrollerMiddle(scrollerMiddle);
+        this.scrollerMiddle = scrollerMiddle;
         scrollerContainer.addChild(scrollerMiddle);
         double sl = scrollerLength(length);
         scrollerMiddle.setWidth(scrollerMiddleWidth(sl, orientation, scrollerMiddle));
@@ -320,35 +253,19 @@ public class Scroller extends CustomComponentContainer {
 
         Texture textureScrollerTail = TextureFactory.fromImage(getScrollerTailTexturePath(orientation));
         Sprite scrollerTail = SpriteFactory.newInstance(textureScrollerTail);
-        setScrollerTail(scrollerTail);
+        this.scrollerTail = scrollerTail;
         scrollerContainer.addChild(scrollerTail);
         scrollerTail.setPosition(scrollerTailPosition(sl, orientation));
-        setEndEdge(length - sl + SCROLLER_EDGE_LENGTH);
-        setDraggable();
+        this.endEdge = length - sl + SCROLLER_EDGE_LENGTH;
+        createDraggable(this.scrollerMiddle);
         addChild(scrollerContainer);
         scrollerContainer.setAlpha(DEFAULT_ALPHA);
 
     }
 
     private double scrollerLength(double lenth) {
-        double newLength = lenth * getK();
+        double newLength = lenth * this.k;
         return newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
     }
-
-    public final native double getK() /*-{
-        return this.k;
-    }-*/;
-
-    public final native double getScrollPosition() /*-{
-        return this.scrollPosition;
-    }-*/;
-
-    public final native void setK(double tk) /*-{
-        this.k = tk;
-    }-*/;
-
-    public final native void setScrollPosition(double p) /*-{
-        this.scrollPosition = p;
-    }-*/;
 
 }

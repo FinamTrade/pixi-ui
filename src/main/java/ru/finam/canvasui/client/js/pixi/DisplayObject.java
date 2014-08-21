@@ -52,15 +52,7 @@ public interface DisplayObject extends JsObject {
     @JsProperty(value = "updateFunction")
     JsObject getUpdateFunction();
 
-    @JsProperty(value = "targetAlpha")
-    void setTargetAlpha(double d);
-
-    @JsProperty(value = "targetAlpha")
-    double getTargetAlpha();
-
-    /*
-    @JsProperty(value = "mouseover")
-    void setMouseover(MouseEventListener t);
-    */
+    @JsProperty(value = "updateFunction")
+    void setUpdateFunction(JsObject func);
 
 }

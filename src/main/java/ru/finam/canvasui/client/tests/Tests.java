@@ -79,7 +79,7 @@ public class Tests {
         renderer = UpdatableRenderer.addNewAuoDetectRenderer(element, width, height);
         element.getElement().appendChild(renderer.getView());
         LayoutedStage stage = currentTest.newTestStage(width, height, images);
-        renderer.startAnimatedRendering(stage.stage(), stage.collectUpdateFunctions());
+        stage.startAnimatedRendering(renderer);
     }
 
     public static void load(final String rendererContainerId, String menuContainerId) {

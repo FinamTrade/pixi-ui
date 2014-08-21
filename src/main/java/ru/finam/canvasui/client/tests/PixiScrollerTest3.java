@@ -13,7 +13,7 @@ public class PixiScrollerTest3 extends PixiScrollerTest {
     public LayoutedStage newTestStage(int width, int height, String... images) {
         LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
         ScrollPanel scrollPanel = fixedSizeScrollPanel(newSampleImage(images[1]));
-        stage.addChildToCenter(scrollPanel.displayObjectContainer(), width, height);
+        stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
         return stage;
     }
 

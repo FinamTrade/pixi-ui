@@ -58,28 +58,4 @@ public class UpdatableRenderer implements Renderer {
         return renderer;
     }
 
-
-    public final native void startAnimatedRendering(Stage stage, Array<JsObject> updateFunctions, Renderer renderer) /*-{
-        $wnd.animate = function() {
-            //console.log('updateFunctions = '+updateFunctions);
-            if (!!updateFunctions) {
-
-                //console.log('!!updateFunctions ');
-                //console.log(' updateFunctions.length =  ' + updateFunctions.length);
-
-                for (var index = 0; index < updateFunctions.length; ++index) {
-                    updateFunctions[index](updateFunctions[index].displayObject);
-                }
-
-            }
-            $wnd.requestAnimFrame($wnd.animate);
-            renderer.render(stage);
-        }
-        $wnd.requestAnimFrame( $wnd.animate );
-    }-*/;
-
-    public void startAnimatedRendering(Stage stage, Array<JsObject> updateFunctions) {
-        startAnimatedRendering(stage, updateFunctions, this.renderer);
-    }
-
 }

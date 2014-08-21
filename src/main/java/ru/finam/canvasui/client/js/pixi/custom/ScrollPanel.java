@@ -1,6 +1,6 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
-import ru.finam.canvasui.client.JsConsole;
+import com.google.gwt.user.client.Window;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
@@ -12,116 +12,112 @@ import ru.finam.canvasui.client.js.pixi.Rectangle;
  */
 public class ScrollPanel extends CustomComponentContainer {
 
-    protected ScrollPanel(DisplayObjectContainer mainContainer, DisplayObject innerPanel) {
+    private Scroller horizontalScroller;
+    private Scroller verticalScroller;
+    private Rectangle maskBounds;
+    private Graphics maskObject;
+    private double scrollMaxX;
+    private double scrollMaxY;
+    private DisplayObject innerPanel;
+    private ScrollCallback scrollXto = new ScrollCallback() {
+        @Override
+        public void onScroll(double pos) {
+            doScrollXTo(pos);
+        }
+    };
+    private ScrollCallback scrollYto = new ScrollCallback() {
+        @Override
+        public void onScroll(double pos) {
+            doScrollYTo(pos);
+        }
+    };
+
+    protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds, DisplayObject innerPanel, boolean drawBorders) {
         super(mainContainer);
-        initComponent(mainContainer, innerPanel);
+        this.innerPanel = innerPanel;
+        this.maskBounds = maskBounds;
+        addChild(innerPanel);
+        this.maskObject = newMaskObject(maskBounds);
+        addChild(this.maskObject );
+        innerPanel.setPosition(PointFactory.newInstance(0, 0));
+        this.maskObject .setPosition(PointFactory.newInstance(0, 0));
+        setMask(this.maskObject );
+        if (drawBorders)
+            drawBorders(maskBounds);
+        addScrollers();
+        setHitArea(maskBounds);
+        setMouseOverEvents(this);
+        setPosition(PointFactory.newInstance(0, 0));
     }
 
-    private final native void initComponent(DisplayObjectContainer mainContainer, DisplayObject innerPanel) /*-{
-
-        this.horizontalScroller = null;
-        this.certicalScroller = null;
-        this.maskBounds = null;
-        this.maskObject = null;
-        this.innerPanel = innerPanel;
-        this.scrollMaxX = 0;
-        this.scrollMaxY = 0;
-
-        var thisScrollPanel = this;
-
-        this.scrollXto = function(newPos) {
-            thisScrollPanel.innerPanel.position.x = thisScrollPanel.scrollMaxX * newPos;
-        }
-
-        this.scrollYto = function(newPos) {
-            thisScrollPanel.innerPanel.position.y = thisScrollPanel.scrollMaxY * newPos;
-        }
-    }-*/;
-
-    private static native void setNativeMouseOverEvents(ScrollPanel scrollPanel, DisplayObject displayObject) /*-{
+    private static native void setMouseOverEvents(ScrollPanel scrollPanel, DisplayObject displayObject) /*-{
 
         displayObject.mouseover = function(mouseData){
-            @ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOvered(Lru/finam/canvasui/client/js/pixi/custom/ScrollPanel;)(scrollPanel);
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOvered()();
         }
 
         displayObject.mouseout = function(mouseData){
-            @ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOuted(Lru/finam/canvasui/client/js/pixi/custom/ScrollPanel;)(scrollPanel);
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOuted()();
         }
 
     }-*/;
 
-    private native JsObject getScrollXto() /*-{
-        return this.scrollXto;
-    }-*/;
+    public void doScrollXTo(double newPos) {
+        this.getInnerPanel().getPosition().setX(getScrollMaxX() * newPos);
+    }
 
-    private native JsObject getScrollYto() /*-{
-        return this.scrollYto;
-    }-*/;
+    public void doScrollYTo(double newPos) {
+        this.getInnerPanel().getPosition().setY(getScrollMaxY() * newPos);
+    }
 
-    private native void setScrollMaxX(double maxX) /*-{
+    private void setScrollMaxX(double maxX) {
         this.scrollMaxX = maxX;
-    }-*/;
+    }
 
-    private native void setScrollMaxY(double maxY) /*-{
+    private double getScrollMaxX() {
+        return this.scrollMaxX;
+    }
+
+    private void setScrollMaxY(double maxY) {
         this.scrollMaxY = maxY;
-    }-*/;
+    };
 
-    private native DisplayObject getInnerPanel() /*-{
+    private double getScrollMaxY() {
+        return this.scrollMaxY;
+    };
+
+    private DisplayObject getInnerPanel() {
         return this.innerPanel;
-    }-*/;
+    }
 
     public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, boolean drawBorders) {
         return newInstance(innerPanel, innerPanel.getBounds(), drawBorders);
     }
 
     public static ScrollPanel newInstance(DisplayObject innerPanel, Rectangle maskBounds, boolean drawBorders) {
-        ScrollPanel scrollPanel = new ScrollPanel(DisplayObjectContainerFactory.newInstance(), innerPanel);
-
-        scrollPanel.setMaskBounds(maskBounds);
-        scrollPanel.addChild(innerPanel);
-        scrollPanel.setMaskObject(newMaskObject(maskBounds));
-        scrollPanel.addChild(scrollPanel.getMaskObject());
-        innerPanel.setPosition(PointFactory.newInstance(0, 0));
-        scrollPanel.getMaskObject().setPosition(PointFactory.newInstance(0, 0));
-        scrollPanel.setMask(scrollPanel.getMaskObject());
-        if (drawBorders)
-            scrollPanel.drawBorders(maskBounds);
-        scrollPanel.addScrollers();
-        scrollPanel.setHitArea(maskBounds);
-        setMouseOverEvents(scrollPanel);
-        scrollPanel.setPosition(PointFactory.newInstance(0, 0));
-
-        return scrollPanel;
+        return new ScrollPanel(DisplayObjectContainerFactory.newInstance(), maskBounds, innerPanel, drawBorders);
     }
 
     private static void setMouseOverEvents(ScrollPanel scrollPanel) {
-        scrollPanel.displayObjectContainer().setInteractive(true);
-        setNativeMouseOverEvents(scrollPanel, scrollPanel.displayObjectContainer());
-        /*
-        scrollPanel.displayObjectContainer().setMouseover(new MouseEventListener() {
-            @Override
-            public void onEvent() {
-                JsConsole.log("setMouseover!");
-            }
-        });
-        */
+        scrollPanel.getMainComponent().setInteractive(true);
+        setMouseOverEvents(scrollPanel, scrollPanel.getMainComponent());
     }
 
-    public static void mouseOvered(ScrollPanel scrollPanel) {
-        if (scrollPanel.getHorizonalScroller() != null && scrollPanel.getHorizonalScroller().displayObjectContainer() != null) {
-            scrollPanel.getHorizonalScroller().displayObjectContainer().setTargetAlpha(1);
+    public void mouseOvered() {
+        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
+            this.horizontalScroller.setTargetAlpha(1);
         }
-        if (scrollPanel.getVerticalScroller() != null && scrollPanel.getVerticalScroller().displayObjectContainer() != null) {
-            scrollPanel.getVerticalScroller().displayObjectContainer().setTargetAlpha(1);
+        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null) {
+            this.verticalScroller.setTargetAlpha(1);
         }
     }
 
-    public static void mouseOuted(ScrollPanel scrollPanel) {
-        if (scrollPanel.getHorizonalScroller() != null && scrollPanel.getHorizonalScroller().displayObjectContainer() != null) {
-            scrollPanel.getHorizonalScroller().displayObjectContainer().setTargetAlpha(0);
+    public void mouseOuted() {
+        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
+            this.horizontalScroller.setTargetAlpha(0);
         }
-        if (scrollPanel.getVerticalScroller() != null && scrollPanel.getVerticalScroller().displayObjectContainer() != null) {
-            scrollPanel.getVerticalScroller().displayObjectContainer().setTargetAlpha(0);
+        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null) {
+            this.verticalScroller.setTargetAlpha(0);
         }
     }
 
@@ -135,29 +131,29 @@ public class ScrollPanel extends CustomComponentContainer {
 
     private void addHorizontalScroller(double k) {
         Scroller horizonalScroller =
-                Scroller.newHorizontalInstance(getMaskBounds().getWidth(), k, getScrollXto());
-        setHorizonalScroller(horizonalScroller);
+                Scroller.newHorizontalInstance(this.maskBounds.getWidth(), k, this.scrollXto);
+        this.horizontalScroller = horizonalScroller;
         horizonalScroller.setAlpha(0);
-        addChild(horizonalScroller.displayObjectContainer());
-        double y = getBoundedHeight(getMaskObject()) - Scroller.DEFAULT_WIDE * 2;
+        addChild(horizonalScroller.getMainComponent());
+        double y = getBoundedHeight(this.maskObject) - Scroller.DEFAULT_WIDE * 2;
         horizonalScroller.setPosition(PointFactory.newInstance(0, y));
         horizonalScroller.setUpdateFunction(horizonalScroller.newUpdateFunction());
     }
 
     private void addVerticalScroller(double k) {
         Scroller verticalScroller =
-                Scroller.newVerticalInstance(getMaskBounds().getHeight(), k, getScrollYto());
-        setVerticalScroller(verticalScroller);
+                Scroller.newVerticalInstance(this.maskBounds.getHeight(), k, this.scrollYto);
+        this.verticalScroller = verticalScroller;
         verticalScroller.setAlpha(0);
-        addChild(verticalScroller.displayObjectContainer());
-        double x = getBoundedWidth(getMaskObject()) - Scroller.DEFAULT_WIDE * 2;
+        addChild(verticalScroller.getMainComponent());
+        double x = getBoundedWidth(this.maskObject) - Scroller.DEFAULT_WIDE * 2;
         verticalScroller.setPosition(PointFactory.newInstance(x, 0));
         verticalScroller.setUpdateFunction(verticalScroller.newUpdateFunction());
     }
 
     private void addScrollers() {
         double width1 = getBoundedWidth(getInnerPanel());
-        double width2 = getBoundedWidth(getMaskObject());
+        double width2 = getBoundedWidth(this.maskObject);
         double maxScrollX = - ( width1 - width2 );
         setScrollMaxX(maxScrollX);
         double kw = width2 / width1;
@@ -166,7 +162,7 @@ public class ScrollPanel extends CustomComponentContainer {
         }
 
         double height1 = getBoundedHeight(getInnerPanel());
-        double height2 = getBoundedHeight(getMaskObject());
+        double height2 = getBoundedHeight(this.maskObject);
         double maxScrollY = - ( height1 - height2 );
         setScrollMaxY(maxScrollY);
         double kh = height2 / height1;
@@ -197,37 +193,5 @@ public class ScrollPanel extends CustomComponentContainer {
     public static ScrollPanel newInstance(DisplayObjectContainer innerPanel, int width, int height) {
         return newInstance(innerPanel, width, height, false);
     }
-
-    public final native Scroller getHorizonalScroller() /*-{
-        return this.horizontalScroller;
-    }-*/;
-
-    public final native Rectangle getMaskBounds() /*-{
-        return this.maskBounds;
-    }-*/;
-
-    public final native Graphics getMaskObject() /*-{
-        return this.maskObject;
-    }-*/;
-
-    public final native void setHorizonalScroller(Scroller hs) /*-{
-        this.horizontalScroller = hs;
-    }-*/;
-
-    public final native void setVerticalScroller(Scroller vs) /*-{
-        this.verticalScroller = vs;
-    }-*/;
-
-    public final native Scroller getVerticalScroller() /*-{
-        return this.verticalScroller;
-    }-*/;
-
-    public final native void setMaskBounds(Rectangle r) /*-{
-        this.maskBounds = r;
-    }-*/;
-
-    public final native void setMaskObject(Graphics g) /*-{
-        this.maskObject = g;
-    }-*/;
 
 }
