@@ -1,6 +1,7 @@
 package ru.finam.canvasui.client.js.pixi;
 
 import com.google.gwt.canvas.client.Canvas;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -9,8 +10,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class RendererFactory {
 
     public static native Renderer autoDetectRenderer(double width, double height,
-                                                     Canvas view, boolean transparent, boolean antialias) /*-{
-        return new $wnd.PIXI.autoDetectRenderer(width, height, view, transparent, antialias);
+                                                     Node canvas, boolean transparent, boolean antialias) /*-{
+        return new $wnd.PIXI.autoDetectRenderer(width, height, canvas, transparent, antialias);
     }-*/;
 
     public static native Renderer autoDetectRenderer(double width, double height) /*-{
@@ -28,23 +29,10 @@ public class RendererFactory {
     }
 
     public static Renderer autoDetectRenderer(int width, int height,
-                                              Canvas view, boolean transparent,
+                                              Node canvas, boolean transparent,
                                               boolean antialias, boolean clearBeforeRender) {
-        Renderer renderer = autoDetectRenderer(width, height, view, transparent, antialias);
+        Renderer renderer = autoDetectRenderer(width, height, canvas, transparent, antialias);
         renderer.setClearBeforeRender(clearBeforeRender);
-        return renderer;
-    }
-
-    public static Renderer addNewAuoDetectRenderer(RootPanel element, int width, int height) {
-        Renderer renderer = autoDetectRenderer(width, height);
-        element.getElement().appendChild(renderer.getView());
-        return renderer;
-    }
-
-    public static Renderer addNewCanvasRenderer(RootPanel element, int width, int height) {
-        Renderer renderer = newCanvasRenderer(width, height);
-        element.clear(true);
-        element.getElement().appendChild(renderer.getView());
         return renderer;
     }
 

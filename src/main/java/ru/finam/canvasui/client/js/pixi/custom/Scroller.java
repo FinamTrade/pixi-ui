@@ -112,15 +112,30 @@ public class Scroller extends CustomComponentContainer {
         return newCoord;
     }
 
-    public void touchMoveUpdateCoord(double newCoord, double startEdge, MouseEvent data, TouchEvent that) {
+    private void updateCoord(double newCoord) {
+        updateCoord(newCoord, null);
+    }
+
+    public void updateCoordK(double k) {
+        double startEdge = SCROLLER_EDGE_LENGTH;
+        double newCoord = k * (endEdge - startEdge) + startEdge;
+        updateCoord(newCoord);
+    }
+
+    private void updateCoord(double newCoord, TouchEvent that) {
+        double startEdge = SCROLLER_EDGE_LENGTH;
         if (this.orientation.equals(Orientation.HORIZONTAL)) {
-            that.getPosition().setX(newCoord);
+            if (that != null)
+                that.getPosition().setX(newCoord);
             this.scrollerForward.getPosition().setX( newCoord - startEdge );
+            this.scrollerMiddle.getPosition().setX( newCoord );
             this.scrollerTail.getPosition().setX( newCoord + this.scrollerMiddle.getWidth() );
         }
         if (this.orientation.equals(Orientation.VERTICAL)) {
-            that.getPosition().setY(newCoord);
+            if (that != null)
+                that.getPosition().setY(newCoord);
             this.scrollerForward.getPosition().setY( newCoord - startEdge );
+            this.scrollerMiddle.getPosition().setY( newCoord );
             this.scrollerTail.getPosition().setY( newCoord + this.scrollerMiddle.getHeight() );
         }
     }
@@ -137,7 +152,7 @@ public class Scroller extends CustomComponentContainer {
             if (newCoord < startEdge) {
                 newCoord = startEdge;
             }
-            touchMoveUpdateCoord(newCoord, startEdge, data, that);
+            updateCoord(newCoord, that);
             double newScrollerPosition = (newCoord - startEdge) / (endEdge - startEdge);
             this.doScrollCallback(newScrollerPosition);
         }

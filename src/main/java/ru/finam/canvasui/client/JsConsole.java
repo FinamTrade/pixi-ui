@@ -1,8 +1,6 @@
 package ru.finam.canvasui.client;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import ru.finam.canvasui.client.pixi.tests.PixiScrollerTest5;
-import ru.finam.canvasui.client.tests.js.JsObject;
+import ru.finam.canvasui.client.js.pixi.JsObject;
 
 /**
  * Created with IntelliJ IDEA.

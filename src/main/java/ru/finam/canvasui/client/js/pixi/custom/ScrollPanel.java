@@ -1,23 +1,29 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
+import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.user.client.Window;
+import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
+import ru.finam.canvasui.client.js.pixi.custom.channel.EventListener;
+import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 
 /**
  * Created by ikusch on 19.08.14.
  */
 public class ScrollPanel extends CustomComponentContainer {
 
+    private static final int MOUSE_WHEEL_SCROLL_K = 3;
     private Scroller horizontalScroller;
     private Scroller verticalScroller;
     private Rectangle maskBounds;
     private Graphics maskObject;
     private double scrollMaxX;
     private double scrollMaxY;
+    private boolean mouseOvered = false;
     private DisplayObject innerPanel;
     private ScrollCallback scrollXto = new ScrollCallback() {
         @Override
@@ -38,7 +44,7 @@ public class ScrollPanel extends CustomComponentContainer {
         this.maskBounds = maskBounds;
         addChild(innerPanel);
         this.maskObject = newMaskObject(maskBounds);
-        addChild(this.maskObject );
+        addChild(this.maskObject);
         innerPanel.setPosition(PointFactory.newInstance(0, 0));
         this.maskObject .setPosition(PointFactory.newInstance(0, 0));
         setMask(this.maskObject );
@@ -48,6 +54,32 @@ public class ScrollPanel extends CustomComponentContainer {
         setHitArea(maskBounds);
         setMouseOverEvents(this);
         setPosition(PointFactory.newInstance(0, 0));
+        MouseWheelEventChannel.addNewListener(new EventListener<MouseWheelEvent>() {
+            @Override
+            public void onEvent(MouseWheelEvent event) {
+                onMouseWheelEvent(event);
+            }
+        });
+    }
+
+    private void mouseWheelReaction(double deltaY) {
+        double scrollMaxY = getScrollMaxY();
+        double currentY = this.getInnerPanel().getPosition().getY();
+        double newY = currentY - deltaY;
+        if (newY > 0)
+            newY = 0;
+        if (newY < scrollMaxY)
+            newY = scrollMaxY;
+        double k = newY / scrollMaxY;
+        doScrollYTo(k);
+        this.verticalScroller.updateCoordK(k);
+    }
+
+    private void onMouseWheelEvent(MouseWheelEvent event) {
+        if (this.mouseOvered) {
+            double deltaY = event.getDeltaY() * MOUSE_WHEEL_SCROLL_K;
+            mouseWheelReaction(deltaY);
+        }
     }
 
     private static native void setMouseOverEvents(ScrollPanel scrollPanel, DisplayObject displayObject) /*-{
@@ -104,6 +136,7 @@ public class ScrollPanel extends CustomComponentContainer {
     }
 
     public void mouseOvered() {
+        this.mouseOvered = true;
         if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
             this.horizontalScroller.setTargetAlpha(1);
         }
@@ -113,6 +146,7 @@ public class ScrollPanel extends CustomComponentContainer {
     }
 
     public void mouseOuted() {
+        this.mouseOvered = false;
         if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
             this.horizontalScroller.setTargetAlpha(0);
         }

@@ -1,12 +1,14 @@
 package ru.finam.canvasui.client.tests;
 
+import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.event.dom.client.MouseWheelEvent;
+import com.google.gwt.event.dom.client.MouseWheelHandler;
+import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
