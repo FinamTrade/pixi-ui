@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi;
+package ru.finam.canvasui.client.js.pixi.custom;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Node;
@@ -8,6 +8,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.finam.canvasui.client.js.pixi.Renderer;
+import ru.finam.canvasui.client.js.pixi.RendererFactory;
+import ru.finam.canvasui.client.js.pixi.Stage;
 import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 
 /**

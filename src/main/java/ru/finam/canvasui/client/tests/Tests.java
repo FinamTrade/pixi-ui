@@ -1,17 +1,14 @@
 package ru.finam.canvasui.client.tests;
 
-import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseWheelEvent;
-import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.user.client.ui.*;
-import com.google.web.bindery.event.shared.HandlerRegistration;
-import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.gwttest.TimelineTest2;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
+import ru.finam.canvasui.client.js.pixi.custom.UpdatableRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +87,8 @@ public class Tests {
         addNewTest(rendererContainerId, new PixiScrollerTest3(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest4(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest6(), menuContainerId);
+        addNewTest(rendererContainerId, new TimelineTest1(), menuContainerId);
+        //addNewTest(rendererContainerId, new TimelineTest2(), menuContainerId);
         currentTest = tests.get(0);
         start(rendererContainerId);
     }

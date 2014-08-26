@@ -6,6 +6,8 @@ import com.google.gwt.dom.client.Node;
 
 /**
  * Created by ikusch on 19.08.14.
+ *
+ * Pixi.js autoDetectRenderer object for GWT.
  */
 @JsType(isNative = true, prototype = "$wnd.PIXI.autoDetectRenderer")
 public interface Renderer extends JsObject {

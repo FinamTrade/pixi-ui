@@ -3,6 +3,7 @@ package ru.finam.canvasui.client.js.pixi.custom;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.user.client.Window;
 import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
@@ -17,6 +18,7 @@ import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 public class ScrollPanel extends CustomComponentContainer {
 
     private static final int MOUSE_WHEEL_SCROLL_K = 3;
+    private static final double SCROLL_TOGGLE_DURATION = 1;
     private Scroller horizontalScroller;
     private Scroller verticalScroller;
     private Rectangle maskBounds;
@@ -138,20 +140,24 @@ public class ScrollPanel extends CustomComponentContainer {
     public void mouseOvered() {
         this.mouseOvered = true;
         if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
-            this.horizontalScroller.setTargetAlpha(1);
+            horizontalScroller.timeline().kill(null, horizontalScroller.getMainComponent());
+            horizontalScroller.timeline().to(horizontalScroller.getMainComponent(), SCROLL_TOGGLE_DURATION, new PropertiesSet().addKeyValue("alpha", 1).getJsObject(), null);
         }
         if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null) {
-            this.verticalScroller.setTargetAlpha(1);
+            verticalScroller.timeline().kill(null, verticalScroller.getMainComponent());
+            verticalScroller.timeline().to(verticalScroller.getMainComponent(), SCROLL_TOGGLE_DURATION, new PropertiesSet().addKeyValue("alpha", 1).getJsObject(), null);
         }
     }
 
     public void mouseOuted() {
         this.mouseOvered = false;
-        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
-            this.horizontalScroller.setTargetAlpha(0);
+        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null && !this.horizontalScroller.isDragging()) {
+            horizontalScroller.timeline().kill(null, horizontalScroller.getMainComponent());
+            horizontalScroller.timeline().to(horizontalScroller.getMainComponent(), SCROLL_TOGGLE_DURATION, new PropertiesSet().addKeyValue("alpha", 0).getJsObject(), null);
         }
-        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null) {
-            this.verticalScroller.setTargetAlpha(0);
+        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null && !this.verticalScroller.isDragging()) {
+            verticalScroller.timeline().kill(null, verticalScroller.getMainComponent());
+            verticalScroller.timeline().to(verticalScroller.getMainComponent(), SCROLL_TOGGLE_DURATION, new PropertiesSet().addKeyValue("alpha", 0).getJsObject(), null);
         }
     }
 
@@ -171,7 +177,6 @@ public class ScrollPanel extends CustomComponentContainer {
         addChild(horizonalScroller.getMainComponent());
         double y = getBoundedHeight(this.maskObject) - Scroller.DEFAULT_WIDE * 2;
         horizonalScroller.setPosition(PointFactory.newInstance(0, y));
-        horizonalScroller.setUpdateFunction(horizonalScroller.newUpdateFunction());
     }
 
     private void addVerticalScroller(double k) {
@@ -182,7 +187,6 @@ public class ScrollPanel extends CustomComponentContainer {
         addChild(verticalScroller.getMainComponent());
         double x = getBoundedWidth(this.maskObject) - Scroller.DEFAULT_WIDE * 2;
         verticalScroller.setPosition(PointFactory.newInstance(x, 0));
-        verticalScroller.setUpdateFunction(verticalScroller.newUpdateFunction());
     }
 
     private void addScrollers() {

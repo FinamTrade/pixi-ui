@@ -2,6 +2,8 @@ package ru.finam.canvasui.client.js.pixi.custom;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.gsap.TimelineLite;
+import ru.finam.canvasui.client.js.gsap.TimelineLiteFactory;
 import ru.finam.canvasui.client.js.pixi.*;
 
 /**
@@ -13,10 +15,9 @@ public class CustomComponentContainer {
 
     private Graphics mask;
     private Point position;
-    private double animationStep = DEFAULT_ANIMATION_STEP;
     private DisplayObjectContainer mainComponent;
-    private double targetAlpha;
     private boolean dragging;
+    private TimelineLite timeline;
 
     protected CustomComponentContainer(DisplayObjectContainer mainComponent) {
         setMainComponent(mainComponent);
@@ -34,12 +35,10 @@ public class CustomComponentContainer {
         return this.mainComponent;
     }
 
-    public void setTargetAlpha(double a) {
-        this.targetAlpha = a;
-    }
-
-    public double getTargetAlpha() {
-        return this.targetAlpha;
+    public TimelineLite timeline() {
+        if (timeline == null)
+            timeline = TimelineLiteFactory.newInstance();
+        return timeline;
     }
 
     public void setAlpha(double a) {
@@ -50,51 +49,12 @@ public class CustomComponentContainer {
         return getMainComponent().getAlpha();
     }
 
-    public void setAnimationStep(double a) {
-        this.animationStep = a;
-    }
-
-    public double getAnimationStep() {
-        return this.animationStep;
-    }
-
-    public JsObject getUpdateFunction(){
-        return getMainComponent().getUpdateFunction();
-    }
-
-    public void setUpdateFunction( JsObject func ) {
-        getMainComponent().setUpdateFunction(func);
-    }
-
     public void setDragging( boolean b ) {
         this.dragging = b;
     }
 
     public boolean isDragging() {
         return this.dragging;
-    }
-
-    public JsObject newUpdateFunction() {
-        return newUpdateFunction(this);
-    }
-
-    public final native JsObject newUpdateFunction(CustomComponentContainer that) /*-{
-        var f = function() {
-            that.@ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer::doUpdateFunction()();
-        }
-        return f;
-    }-*/;
-
-    public void doUpdateFunction() {
-        double aplhaDiff = getTargetAlpha() - getAlpha();
-        if (Math.abs(aplhaDiff) > Math.abs( getAnimationStep() )
-                && ( !isDragging())) {
-            if (aplhaDiff > 0) {
-                setAlpha(getAlpha() + getAnimationStep());
-            }
-            else
-                setAlpha(getAlpha() - getAnimationStep());
-        }
     }
 
     public void addChild(DisplayObject child) {

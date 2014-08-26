@@ -11,9 +11,9 @@ public abstract class PixiScrollerTest {
 
     protected static final int BG_COLOR = 0xFFFFFF;
 
-    abstract LayoutedStage newTestStage(int width, int height, String... images);
+    public abstract LayoutedStage newTestStage(int width, int height, String... images);
 
-    abstract String name();
+    public abstract String name();
 
     protected static Sprite newSampleImage(String path) {
         Texture texture = TextureFactory.fromImage(path);

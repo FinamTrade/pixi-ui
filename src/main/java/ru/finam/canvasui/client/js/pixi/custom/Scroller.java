@@ -1,7 +1,5 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
 
 /**
@@ -13,7 +11,7 @@ public class Scroller extends CustomComponentContainer {
     public static final int DEFAULT_COLOR = 0x000000;
     public static final double DEFAULT_ALPHA = 0.6;
     public static final double DRAGGING_ALPHA = 0.9;
-    public static final double MIN_LENGTH = 15;
+    public static final int MIN_LENGTH = 15;
     private static final double SCROLLER_EDGE_LENGTH = 4;
 
     private DisplayObjectContainer scrollerContainer;
@@ -259,7 +257,7 @@ public class Scroller extends CustomComponentContainer {
         Sprite scrollerMiddle = SpriteFactory.newInstance(textureScrollerMIddle);
         this.scrollerMiddle = scrollerMiddle;
         scrollerContainer.addChild(scrollerMiddle);
-        double sl = scrollerLength(length);
+        int sl = scrollerLength(length);
         scrollerMiddle.setWidth(scrollerMiddleWidth(sl, orientation, scrollerMiddle));
         scrollerMiddle.setHeight(scrollerMiddleHeight(sl, orientation, scrollerMiddle));
         scrollerMiddle.setPosition(scrollerMiddlePosition(orientation));
@@ -278,8 +276,8 @@ public class Scroller extends CustomComponentContainer {
 
     }
 
-    private double scrollerLength(double lenth) {
-        double newLength = lenth * this.k;
+    private int scrollerLength(double lenth) {
+        int newLength = (int) (lenth * this.k);
         return newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
     }
 
