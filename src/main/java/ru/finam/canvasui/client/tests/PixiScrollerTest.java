@@ -1,6 +1,5 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 

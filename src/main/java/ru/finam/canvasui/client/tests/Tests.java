@@ -5,7 +5,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.finam.canvasui.client.js.gwttest.TimelineTest2;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.js.pixi.custom.UpdatableRenderer;

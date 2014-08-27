@@ -3,7 +3,6 @@ package ru.finam.canvasui.client.js.pixi.custom;
 import com.google.gwt.core.client.JavaScriptObject;
 import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
-import ru.finam.canvasui.client.js.gsap.TimelineLiteFactory;
 import ru.finam.canvasui.client.js.pixi.*;
 
 /**
@@ -37,7 +36,7 @@ public class CustomComponentContainer {
 
     public TimelineLite timeline() {
         if (timeline == null)
-            timeline = TimelineLiteFactory.newInstance();
+            timeline = TimelineLite.Factory.newInstance();
         return timeline;
     }
 

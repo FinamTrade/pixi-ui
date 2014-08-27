@@ -2,8 +2,8 @@ package ru.finam.canvasui.client.js.pixi.custom;
 
 import com.google.gwt.core.client.js.JsProperty;
 import com.google.gwt.core.client.js.JsType;
+import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
-import ru.finam.canvasui.client.js.pixi.JsObject;
 import ru.finam.canvasui.client.js.pixi.MouseEvent;
 import ru.finam.canvasui.client.js.pixi.Point;
 

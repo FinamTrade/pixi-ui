@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi;
+package ru.finam.canvasui.client.js;
 
 import com.google.gwt.core.client.js.JsType;
 

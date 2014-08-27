@@ -2,6 +2,8 @@ package ru.finam.canvasui.client.js.pixi.custom;
 
 import com.google.gwt.user.client.Window;
 import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.Array;
+import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.Graphics;

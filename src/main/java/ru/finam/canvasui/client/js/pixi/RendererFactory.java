@@ -1,8 +1,6 @@
 package ru.finam.canvasui.client.js.pixi;
 
-import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Node;
-import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Created by ikusch on 19.08.14.

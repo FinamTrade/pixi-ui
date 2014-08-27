@@ -1,6 +1,6 @@
 package ru.finam.canvasui.client;
 
-import ru.finam.canvasui.client.js.pixi.JsObject;
+import ru.finam.canvasui.client.js.JsObject;
 
 /**
  * Created with IntelliJ IDEA.

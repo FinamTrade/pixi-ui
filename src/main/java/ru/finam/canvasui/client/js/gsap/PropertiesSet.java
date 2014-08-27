@@ -1,6 +1,6 @@
 package ru.finam.canvasui.client.js.gsap;
 
-import ru.finam.canvasui.client.js.pixi.JsObject;
+import ru.finam.canvasui.client.js.JsObject;
 
 /**
  * Created by ikusch on 22.08.14.

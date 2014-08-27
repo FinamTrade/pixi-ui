@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi;
+package ru.finam.canvasui.client.js;
 
 import com.google.gwt.core.client.js.JsProperty;
 import com.google.gwt.core.client.js.JsType;
@@ -15,5 +15,13 @@ public interface Array<T extends JsObject> extends JsObject{
 
     @JsProperty(value = "length")
     int getLength();
+
+    public static class Factory {
+
+        public static final native Array<JsObject> newArray() /*-{
+            return [];
+        }-*/;
+
+    }
 
 }

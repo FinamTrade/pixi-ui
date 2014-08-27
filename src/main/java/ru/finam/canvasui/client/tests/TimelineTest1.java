@@ -1,16 +1,10 @@
 package ru.finam.canvasui.client.tests;
 
-import com.google.gwt.core.client.ScriptInjector;
-import com.google.gwt.core.client.js.JsProperty;
-import com.google.gwt.core.client.js.JsType;
-import com.google.gwt.user.client.Window;
-import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.Animation;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
-import ru.finam.canvasui.client.js.gsap.TimelineLiteFactory;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.js.pixi.JsObject;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
@@ -30,16 +24,54 @@ public class TimelineTest1 extends PixiScrollerTest {
         DisplayObjectContainer d = newSampleImage(images[1]);
         stage.addChild(d);
         d.setWidth(200);
-        TimelineLite timelineLite = TimelineLiteFactory.newInstance();
+        TimelineLite timelineLite = TimelineLite.Factory.newInstance();
         timelineLite.from(d, 9, new PropertiesSet().addKeyValue("alpha", 0).getJsObject());
 
-        //Window.alert("dd = " + timelineLite._duration());
+        timelineLite.delay(2.2);
+        double delay = timelineLite.getDelay();
+        //Window.alert("delay = " + delay);
+
+        timelineLite.duration(2);
+        double duration = timelineLite.getDuration();
+        //Window.alert("duration = " + duration);
+
+        timelineLite.eventCallback("onComplete", newEventCallback(), null, null);
+        //Window.alert("getEventCallback = " + timelineLite.getEventCallback());
+
+        timelineLite.paused(true);
+        //Window.alert("timelineLite.isPaused() = " + timelineLite.isPaused());
+        timelineLite.paused(false);
+
+        timelineLite.progress(0.3, false);
+        //Window.alert("timelineLite.getProgress() = " + timelineLite.getProgress());
+
+        //timelineLite.reversed(true);
+        //Window.alert("timelineLite.isReversed() = " + timelineLite.isReversed());
+
+        timelineLite.startTime(2.6);
+        //Window.alert("timelineLite.startTime() = " + timelineLite.getStartTime());
+
+        //Window.alert("timelineLite.getTime() = " + timelineLite.getTime());
+
+        timelineLite.totalDuration(12.6);
+        //Window.alert("timelineLite.getTotalDuration() = " + timelineLite.getTotalDuration());
+
+        //Window.alert("timelineLite.getTotalProgress() = " + timelineLite.getTotalProgress());
+
+        //Window.alert("timelineLite.getTotalTime() = " + timelineLite.getTotalTime());
+
         d.setPosition(PointFactory.newInstance(23, 78));
         return stage;
     }
 
     private final native double getDuration(Animation a) /*-{
         return a.duration();
+    }-*/;
+
+    private final native JsObject newEventCallback() /*-{
+        return function() {
+            alert('Animation completed!');
+        };
     }-*/;
 
     private final native JsObject newAnimateProps() /*-{
