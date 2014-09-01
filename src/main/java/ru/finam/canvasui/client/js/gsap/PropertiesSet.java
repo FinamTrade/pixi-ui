@@ -39,4 +39,12 @@ public class PropertiesSet {
         return obj;
     }-*/;
 
+    public double doubleKeyValue(String key) {
+        return doubleKeyValue(jsObject, key);
+    }
+
+    private final native double doubleKeyValue(JsObject obj, String key) /*-{
+        return obj[key];
+    }-*/;
+
 }

@@ -20,6 +20,9 @@ public interface DisplayObject extends JsObject {
     @JsProperty(value = "mask")
     Graphics getMask();
 
+    @JsProperty(value = "parent")
+    DisplayObjectContainer getParent();
+
     @JsProperty(value = "position")
     Point getPosition();
 
@@ -55,5 +58,7 @@ public interface DisplayObject extends JsObject {
 
     @JsProperty(value = "updateFunction")
     void setUpdateFunction(JsObject func);
+
+    void removeChild(DisplayObject displayObject);
 
 }

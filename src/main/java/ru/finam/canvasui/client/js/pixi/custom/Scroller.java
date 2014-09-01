@@ -1,5 +1,9 @@
 package ru.finam.canvasui.client.js.pixi.custom;
-
+import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.Array;
+import ru.finam.canvasui.client.js.JsObject;
+import ru.finam.canvasui.client.js.gsap.PropertiesSet;
+import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.*;
 
 /**
@@ -13,6 +17,8 @@ public class Scroller extends CustomComponentContainer {
     public static final double DRAGGING_ALPHA = 0.9;
     public static final int MIN_LENGTH = 15;
     private static final double SCROLLER_EDGE_LENGTH = 4;
+    private static final double RESIZE_ANI_DURATION = 0.8;
+    private static final double SCROLL_TOGGLE_DURATION = 1;
 
     private DisplayObjectContainer scrollerContainer;
     private Orientation orientation;
@@ -22,8 +28,12 @@ public class Scroller extends CustomComponentContainer {
     private double touchStartDiff;
     private double endEdge;
     private double k;
+    private double fullLength;
     private double scrollPosition;
     private ScrollCallback scrollCallback;
+    private Integer scrollerLength = null;
+    private TimelineLite resizeTimeline;
+    private PropertiesSet tScrollerLengthHolder;
 
     public static enum Orientation {
         HORIZONTAL, VERTICAL;
@@ -37,29 +47,38 @@ public class Scroller extends CustomComponentContainer {
         this.orientation = orientation;
         this.scrollCallback = scrollCallback;
         this.k = k;
+        this.fullLength = length;
         setDragging(false);
-        addGraphics(length, orientation);
+        addGraphics();
     }
 
     public void doScrollCallback(double d) {
         scrollCallback.onScroll(d);
     }
 
-    private static Scroller newInstance(double length, double k, ScrollCallback scrollCallback, Orientation orientation) {
+    private static Scroller newInstance(double length, double k, ScrollCallback scrollCallback,
+                                        Orientation orientation) {
         return newInstance(length, k, 0, scrollCallback, orientation);
     }
 
     private static Scroller newInstance(double length, double k,
-                                        double scrollPosition, ScrollCallback scrollCallback, Orientation orientation) {
+                                        double scrollPosition, ScrollCallback scrollCallback,
+                                        Orientation orientation) {
         return new Scroller(k, scrollPosition, scrollCallback, orientation, length);
     }
 
-    public static Scroller newHorizontalInstance(double width, double k, ScrollCallback scrollCallback) {
-        return newInstance(width, k, 0, scrollCallback, Orientation.HORIZONTAL);
+    public static Scroller newHorizontalInstance(double width, double k, ScrollCallback scrollCallback,
+                                                 double initAlpha) {
+        Scroller scroller = newInstance(width, k, 0, scrollCallback, Orientation.HORIZONTAL);
+        scroller.setAlpha(initAlpha);
+        return scroller;
     }
 
-    public static Scroller newVerticalInstance(double width, double k, ScrollCallback scrollCallback) {
-        return newInstance(width, k, 0, scrollCallback, Orientation.VERTICAL);
+    public static Scroller newVerticalInstance(double width, double k, ScrollCallback scrollCallback,
+                                               double initAlpha) {
+        Scroller scroller = newInstance(width, k, 0, scrollCallback, Orientation.VERTICAL);
+        scroller.setAlpha(initAlpha);
+        return scroller;
     }
 
     private double touchStartDiff(MouseEvent data, TouchEvent that) {
@@ -115,6 +134,7 @@ public class Scroller extends CustomComponentContainer {
     }
 
     public void updateCoordK(double k) {
+        this.scrollPosition = k;
         double startEdge = SCROLLER_EDGE_LENGTH;
         double newCoord = k * (endEdge - startEdge) + startEdge;
         updateCoord(newCoord);
@@ -151,8 +171,8 @@ public class Scroller extends CustomComponentContainer {
                 newCoord = startEdge;
             }
             updateCoord(newCoord, that);
-            double newScrollerPosition = (newCoord - startEdge) / (endEdge - startEdge);
-            this.doScrollCallback(newScrollerPosition);
+            this.scrollPosition = (newCoord - startEdge) / (endEdge - startEdge);
+            this.doScrollCallback(scrollPosition);
         }
     }
 
@@ -204,9 +224,9 @@ public class Scroller extends CustomComponentContainer {
         return "";
     }
 
-    private int scrollerMiddleWidth(double sl, Orientation orientation, Sprite scrollerMiddle) {
+    private int scrollerMiddleWidth(Orientation orientation, Sprite scrollerMiddle) {
         if (orientation.equals(Orientation.HORIZONTAL)) {
-            return (int) ( sl - 2 * SCROLLER_EDGE_LENGTH );
+            return (int) ( scrollerLength - 2 * SCROLLER_EDGE_LENGTH );
         }
         if (orientation.equals(Orientation.VERTICAL)) {
             return DEFAULT_WIDE * 2;
@@ -214,9 +234,9 @@ public class Scroller extends CustomComponentContainer {
         throw new AssertionError();
     }
 
-    private int scrollerMiddleHeight(double sl, Orientation orientation, Sprite scrollerMiddle) {
+    private int scrollerMiddleHeight(Orientation orientation, Sprite scrollerMiddle) {
         if (orientation.equals(Orientation.VERTICAL)) {
-            return (int) ( sl - 2 * SCROLLER_EDGE_LENGTH );
+            return (int) ( scrollerLength - 2 * SCROLLER_EDGE_LENGTH );
         }
         if (orientation.equals(Orientation.HORIZONTAL)) {
             return DEFAULT_WIDE * 2;
@@ -226,59 +246,142 @@ public class Scroller extends CustomComponentContainer {
 
     private Point scrollerMiddlePosition(Orientation orientation) {
         if (orientation.equals(Orientation.HORIZONTAL)) {
-            return PointFactory.newInstance(SCROLLER_EDGE_LENGTH, 0);
+            return PointFactory.newInstance(SCROLLER_EDGE_LENGTH + scrollerForward.getPosition().getX(), 0);
         }
         if (orientation.equals(Orientation.VERTICAL)) {
-            return PointFactory.newInstance(0, SCROLLER_EDGE_LENGTH);
+            return PointFactory.newInstance(0, SCROLLER_EDGE_LENGTH + scrollerForward.getPosition().getY());
         }
         throw new AssertionError();
     }
 
-    private Point scrollerTailPosition(double sl, Orientation orientation) {
+    private Point scrollerTailPosition(Orientation orientation) {
         if (orientation.equals(Orientation.HORIZONTAL)) {
-            return PointFactory.newInstance(( sl - SCROLLER_EDGE_LENGTH ), 0);
+            return PointFactory.newInstance(( scrollerLength - SCROLLER_EDGE_LENGTH + scrollerForward.getPosition().getX() ), 0);
         }
         if (orientation.equals(Orientation.VERTICAL)) {
-            return PointFactory.newInstance(0, ( sl - SCROLLER_EDGE_LENGTH ));
+            return PointFactory.newInstance(0, ( scrollerLength - SCROLLER_EDGE_LENGTH + scrollerForward.getPosition().getY() ));
         }
         throw new AssertionError();
     }
 
-    private final void addGraphics(double length, Orientation orientation) {
-        DisplayObjectContainer scrollerContainer = DisplayObjectContainerFactory.newInstance();
-        this.scrollerContainer = scrollerContainer;
+    public void updateK(double k) {
+        this.k = k;
+        updateScrollerSize();
+    }
+
+    private final native JsObject onRepeat(Scroller inst) /*-{
+        return function() {
+            inst.@ru.finam.canvasui.client.js.pixi.custom.Scroller::updateScrollerSizeWithTval()();
+        };
+    }-*/;
+
+    private void animatedUpdateScrollerSize() {
+        tScrollerLengthHolder.addKeyValue("val", scrollerLength);
+        resizeTimeline().kill(null, tScrollerLengthHolder.getJsObject());
+        resizeTimeline().duration(RESIZE_ANI_DURATION);
+        resizeTimeline().totalDuration(RESIZE_ANI_DURATION);
+        resizeTimeline().delay(0);
+        resizeTimeline().to(tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION, new PropertiesSet().addKeyValue("val",
+                scrollerLength(this.fullLength)).getJsObject(), null);
+    }
+
+    private void updateScrollerSizeWithTval() {
+        updateScrollerSize((int) tScrollerLengthHolder.doubleKeyValue("val"));
+    }
+
+    private void updateScrollerSize() {
+        if (scrollerLength == null)
+            updateScrollerSize(scrollerLength(this.fullLength));
+        else
+            animatedUpdateScrollerSize();
+    }
+
+    private void updateScrollerSize(int scrollerLength) {
+        this.scrollerLength = scrollerLength;
+        scrollerMiddle.setWidth(scrollerMiddleWidth(orientation, scrollerMiddle));
+        scrollerMiddle.setHeight(scrollerMiddleHeight(orientation, scrollerMiddle));
+        scrollerMiddle.setPosition(scrollerMiddlePosition(orientation));
+        scrollerTail.setPosition(scrollerTailPosition(orientation));
+        scrollerMiddle.setInteractive(true);
+        scrollerMiddle.setButtonMode(true);
+        this.endEdge = this.fullLength - scrollerLength + SCROLLER_EDGE_LENGTH;
+        updateCoordK(this.scrollPosition);
+    }
+
+    private final void addGraphics() {
+        tScrollerLengthHolder = new PropertiesSet();
+        tScrollerLengthHolder.addKeyValue("val", 0);
+
+        this.scrollerContainer = DisplayObjectContainer.Factory.newInstance();
         Texture textureScrollerForward = TextureFactory.fromImage(getScrollerForwardTexturePath(orientation));
-        Sprite scrollerForward = SpriteFactory.newInstance(textureScrollerForward);
-        this.scrollerForward = scrollerForward;
+        scrollerForward = SpriteFactory.newInstance(textureScrollerForward);
         scrollerContainer.addChild(scrollerForward);
         scrollerForward.setPosition(PointFactory.newInstance(0, 0));
 
         Texture textureScrollerMIddle = TextureFactory.fromImage(getScrollerMiddleTexturePath(orientation));
-        Sprite scrollerMiddle = SpriteFactory.newInstance(textureScrollerMIddle);
-        this.scrollerMiddle = scrollerMiddle;
+        scrollerMiddle = SpriteFactory.newInstance(textureScrollerMIddle);
         scrollerContainer.addChild(scrollerMiddle);
-        int sl = scrollerLength(length);
-        scrollerMiddle.setWidth(scrollerMiddleWidth(sl, orientation, scrollerMiddle));
-        scrollerMiddle.setHeight(scrollerMiddleHeight(sl, orientation, scrollerMiddle));
-        scrollerMiddle.setPosition(scrollerMiddlePosition(orientation));
-        scrollerMiddle.setInteractive(true);
-        scrollerMiddle.setButtonMode(true);
 
         Texture textureScrollerTail = TextureFactory.fromImage(getScrollerTailTexturePath(orientation));
-        Sprite scrollerTail = SpriteFactory.newInstance(textureScrollerTail);
-        this.scrollerTail = scrollerTail;
+        scrollerTail = SpriteFactory.newInstance(textureScrollerTail);
         scrollerContainer.addChild(scrollerTail);
-        scrollerTail.setPosition(scrollerTailPosition(sl, orientation));
-        this.endEdge = length - sl + SCROLLER_EDGE_LENGTH;
+
+        updateScrollerSize();
+
         createDraggable(this.scrollerMiddle);
         addChild(scrollerContainer);
         scrollerContainer.setAlpha(DEFAULT_ALPHA);
 
+        resizeTimeline().eventCallback("onUpdate", onRepeat(this), null, null);
+
+    }
+
+    private void onRemoveAnimationComplete() {
+        this.getParent().removeChild(this.getMainComponent());
+    }
+
+    private final native JsObject onRemoveAnimationComplete(Scroller inst) /*-{
+        return function() {
+            inst.@ru.finam.canvasui.client.js.pixi.custom.Scroller::onRemoveAnimationComplete()();
+        };
+    }-*/;
+
+    public void animatedHide() {
+        animatedAlphaChange(0);
+    }
+
+    public void animatedRemove() {
+        timeline().eventCallback("onComplete", onRemoveAnimationComplete(this), null, null);
+        animatedHide();
+    }
+
+    public void animatedShow() {
+        animatedAlphaChange(1);
+    }
+
+    public void animatedAlphaChange(double newAlpha) {
+        timeline().kill(null, getMainComponent());
+        timeline().to(getMainComponent(), SCROLL_TOGGLE_DURATION,
+                new PropertiesSet().addKeyValue("alpha", newAlpha).getJsObject(), null);
+    }
+
+    public TimelineLite resizeTimeline() {
+        if (resizeTimeline == null)
+            resizeTimeline = TimelineLite.Factory.newInstance();
+        return resizeTimeline;
     }
 
     private int scrollerLength(double lenth) {
         int newLength = (int) (lenth * this.k);
         return newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
+    }
+
+    public double getK() {
+        return k;
+    }
+
+    public double getScrollPosition() {
+        return scrollPosition;
     }
 
 }

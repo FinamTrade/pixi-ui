@@ -25,6 +25,8 @@ public class Tests {
     private static final String SAMPLE_IMAGE2 = "img/city2.png";
     private static final String SAMPLE_IMAGE3 = "img/funny.jpg";
     private static final String SAMPLE_IMAGE4 = "img/funny2.jpg";
+    private static final String SAMPLE_IMAGE5 = "img/city2bordered.png";
+    private static final String SAMPLE_IMAGE6 = "img/funnyBordered.jpg";
     private static UpdatableRenderer renderer;
     private static List<PixiScrollerTest> tests = new ArrayList<PixiScrollerTest>();
     private static PixiScrollerTest currentTest;
@@ -37,6 +39,8 @@ public class Tests {
         al.add(SAMPLE_IMAGE2);
         al.add(SAMPLE_IMAGE3);
         al.add(SAMPLE_IMAGE4);
+        al.add(SAMPLE_IMAGE5);
+        al.add(SAMPLE_IMAGE6);
         return al.toArray(new String[]{});
     }
 
@@ -87,7 +91,15 @@ public class Tests {
         addNewTest(rendererContainerId, new PixiScrollerTest4(), menuContainerId);
         addNewTest(rendererContainerId, new PixiScrollerTest6(), menuContainerId);
         addNewTest(rendererContainerId, new TimelineTest1(), menuContainerId);
-        //addNewTest(rendererContainerId, new TimelineTest2(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingTableTest(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingTableTest2(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingTableTest3(), menuContainerId);
+        addNewTest(rendererContainerId, new TableTest3(), menuContainerId);
+        addNewTest(rendererContainerId, new TableTest4(), menuContainerId);
+        addNewTest(rendererContainerId, new TableTest5(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest2(), menuContainerId);
+        addNewTest(rendererContainerId, new BorderedImageTest(), menuContainerId);
         currentTest = tests.get(0);
         start(rendererContainerId);
     }

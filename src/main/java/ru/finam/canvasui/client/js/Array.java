@@ -24,4 +24,12 @@ public interface Array<T extends JsObject> extends JsObject{
 
     }
 
+    public static class Static {
+
+        public static final native <T extends JsObject> T get(int i, Array<T> array) /*-{
+            array[i];
+        }-*/;
+
+    }
+
 }

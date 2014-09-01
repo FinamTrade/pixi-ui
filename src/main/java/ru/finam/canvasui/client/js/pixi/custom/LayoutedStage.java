@@ -40,6 +40,10 @@ public class LayoutedStage {
         this(StageFactory.newInstance(bgColor, b));
     }
 
+    public final void addChildToCenter(CustomComponentContainer child, int width, int height) {
+        addChildToCenter(child.getMainComponent(), width, height);
+    }
+
     public final void addChildToCenter(DisplayObject child, int width, int height) {
         stage.addChild(child);
         setWidth(width);

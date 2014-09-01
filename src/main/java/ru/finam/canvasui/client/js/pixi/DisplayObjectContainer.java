@@ -10,6 +10,14 @@ import ru.finam.canvasui.client.js.Array;
 @JsType(prototype = "$wnd.PIXI.DisplayObjectContainer")
 public interface DisplayObjectContainer extends DisplayObject {
 
+    public static class Factory {
+
+        public static native DisplayObjectContainer newInstance() /*-{
+            return new $wnd.PIXI.DisplayObjectContainer();
+        }-*/;
+
+    }
+
     void addChild(DisplayObject child);
 
     @JsProperty(value = "children")

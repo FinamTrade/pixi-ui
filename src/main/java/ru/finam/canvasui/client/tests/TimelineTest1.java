@@ -6,8 +6,10 @@ import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
+import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
 
 /**
  * Created by ikusch on 22.08.14.
@@ -19,14 +21,16 @@ public class TimelineTest1 extends PixiScrollerTest {
 
 
         LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
-        ScrollPanel scrollPanel = fixedSizeScrollPanel1(newSampleImage(images[2]));
+        ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
         stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
         DisplayObjectContainer d = newSampleImage(images[1]);
         stage.addChild(d);
         d.setWidth(200);
         TimelineLite timelineLite = TimelineLite.Factory.newInstance();
         timelineLite.from(d, 9, new PropertiesSet().addKeyValue("alpha", 0).getJsObject());
+        timelineLite.eventCallback("onComplete", newEventCallback(), null, null);
 
+        /*
         timelineLite.delay(2.2);
         double delay = timelineLite.getDelay();
         //Window.alert("delay = " + delay);
@@ -35,7 +39,6 @@ public class TimelineTest1 extends PixiScrollerTest {
         double duration = timelineLite.getDuration();
         //Window.alert("duration = " + duration);
 
-        timelineLite.eventCallback("onComplete", newEventCallback(), null, null);
         //Window.alert("getEventCallback = " + timelineLite.getEventCallback());
 
         timelineLite.paused(true);
@@ -59,14 +62,10 @@ public class TimelineTest1 extends PixiScrollerTest {
         //Window.alert("timelineLite.getTotalProgress() = " + timelineLite.getTotalProgress());
 
         //Window.alert("timelineLite.getTotalTime() = " + timelineLite.getTotalTime());
-
+        */
         d.setPosition(PointFactory.newInstance(23, 78));
         return stage;
     }
-
-    private final native double getDuration(Animation a) /*-{
-        return a.duration();
-    }-*/;
 
     private final native JsObject newEventCallback() /*-{
         return function() {
@@ -83,7 +82,7 @@ public class TimelineTest1 extends PixiScrollerTest {
         return "TimelineTest1";
     }
 
-    private static ScrollPanel fixedSizeScrollPanel1(DisplayObjectContainer innerPanel) {
+    private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
         int width = (int) innerPanel.getWidth();
         int height = (int) innerPanel.getHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, (int) ( width / 1.4), (int) ( height / 1.4 ), true);

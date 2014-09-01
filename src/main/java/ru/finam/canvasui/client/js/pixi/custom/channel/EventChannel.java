@@ -1,6 +1,7 @@
 package ru.finam.canvasui.client.js.pixi.custom.channel;
 
 import com.google.gwt.event.dom.client.DomEvent;
+import com.google.web.bindery.event.shared.Event;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,7 +11,7 @@ import java.util.WeakHashMap;
 /**
  * Created by ikusch on 21.08.14.
  */
-public class EventChannel<T extends DomEvent> {
+public class EventChannel<T extends Event> {
 
 
     //private Set<EventListener<T>> listeners = Collections.newSetFromMap(new WeakHashMap<EventListener<T>, Boolean>());
