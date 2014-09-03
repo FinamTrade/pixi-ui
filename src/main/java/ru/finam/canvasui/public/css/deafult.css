@@ -43,7 +43,7 @@ div#menu-area {
 div.menu-item {
     display: inline-block;
     cursor: pointer;
-    padding: 7px;
+    padding: 3px;
 }
 
 div.menu-item-holder {

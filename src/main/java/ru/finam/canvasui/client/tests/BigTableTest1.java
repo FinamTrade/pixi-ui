@@ -9,7 +9,7 @@ import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
 /**
  * Created by ikusch on 28.08.2014.
  */
-public class GrowingTableTest3 extends PixiScrollerTest {
+public class BigTableTest1 extends PixiScrollerTest {
 
     @Override
     public LayoutedStage newTestStage(int width, int height, String... images) {

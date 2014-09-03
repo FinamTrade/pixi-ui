@@ -93,10 +93,12 @@ public class Tests {
         addNewTest(rendererContainerId, new TimelineTest1(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingTableTest(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingTableTest2(), menuContainerId);
-        addNewTest(rendererContainerId, new GrowingTableTest3(), menuContainerId);
+        addNewTest(rendererContainerId, new BigTableTest1(), menuContainerId);
+        addNewTest(rendererContainerId, new BigTableTest2(), menuContainerId);
         addNewTest(rendererContainerId, new TableTest3(), menuContainerId);
         addNewTest(rendererContainerId, new TableTest4(), menuContainerId);
         addNewTest(rendererContainerId, new TableTest5(), menuContainerId);
+        addNewTest(rendererContainerId, new TableTest6(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest2(), menuContainerId);
         addNewTest(rendererContainerId, new BorderedImageTest(), menuContainerId);

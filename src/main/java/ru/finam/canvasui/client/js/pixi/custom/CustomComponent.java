@@ -1,5 +1,6 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
+import com.google.gwt.core.client.js.JsProperty;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.*;
 
@@ -102,4 +103,15 @@ public class CustomComponent<T extends DisplayObject> {
         return getMainComponent().getParent();
     }
 
+    public void setInteractive(boolean b) {
+        getMainComponent().setInteractive(b);
+    }
+
+    public boolean getInteractive() {
+        return getMainComponent().getInteractive();
+    }
+
+    public Rectangle croppedBounds() {
+        return Rectangle.Factory.newInstance(0, 0, (int) getBoundedWidth(), (int) getBoundedHeight());
+    }
 }

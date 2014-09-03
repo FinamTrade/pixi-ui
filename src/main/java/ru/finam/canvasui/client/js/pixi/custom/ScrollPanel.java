@@ -1,10 +1,7 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
 import com.google.gwt.event.dom.client.MouseWheelEvent;
-import com.google.gwt.user.client.Window;
 import ru.finam.canvasui.client.JsConsole;
-import ru.finam.canvasui.client.js.JsObject;
-import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
@@ -17,27 +14,23 @@ import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class ScrollPanel extends CustomComponentContainer {
+public class ScrollPanel extends HasDraggableComponent {
 
     private static final int MOUSE_WHEEL_SCROLL_K = 3;
-    private Scroller horizontalScroller;
-    private Scroller verticalScroller;
+    private static final int VERTICAL_I = ScrollOrientation.VERTICAL.ordinal();
+    private static final int HORIZONTAL_I = ScrollOrientation.HORIZONTAL.ordinal();
+    private static final int ORIENTATIONS_LENGTH = ScrollOrientation.values().length;
+    private static final double SCROLLER_EDGE_LENGTH = 0;
+    private Scroller[] scrollers = new Scroller[ORIENTATIONS_LENGTH];
     private Rectangle maskBounds;
     public Graphics maskObject;
-    private double scrollMaxX;
-    private double scrollMaxY;
+    private double[] scrollMaxOffset = new double[ORIENTATIONS_LENGTH];
     private boolean mouseOvered = false;
     private CustomComponentContainer innerPanel;
-    private ScrollCallback scrollXto = new ScrollCallback() {
+    private ScrollCallback scrollTo = new ScrollCallback() {
         @Override
-        public void onScroll(double pos) {
-            scrollXToIfScrollable(pos);
-        }
-    };
-    private ScrollCallback scrollYto = new ScrollCallback() {
-        @Override
-        public void onScroll(double pos) {
-            scrollYToIfScrollable(pos);
+        public void onScroll(double pos, ScrollOrientation orientation) {
+            scrollToIfScrollable(pos, orientation);
         }
     };
 
@@ -56,8 +49,90 @@ public class ScrollPanel extends CustomComponentContainer {
         updateScrollers();
         setHitArea(maskBounds);
         setMouseOverEvents(this);
+        setTouchEvents();
         setPosition(PointFactory.newInstance(0, 0));
         listeners();
+    }
+
+    private void setTouchEvents() {
+        this.innerPanel.setInteractive(true);
+        this.innerPanel.setHitArea(this.innerPanel.croppedBounds());
+        createTouchDraggable(this.innerPanel.getMainComponent());
+    }
+
+    protected final native void createTouchDraggable(DisplayObject innerPanel) /*-{
+
+        var theScrollPanel = this;
+        innerPanel.mousedown =
+        innerPanel.touchstart = function(data)
+        {
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+        };
+
+        innerPanel.mouseup = innerPanel.mouseupoutside =
+        innerPanel.touchend = innerPanel.touchendoutside = function(data)
+        {
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+        };
+
+        innerPanel.mousemove =
+        innerPanel.touchmove = function(data)
+        {
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+        }
+
+    }-*/;
+
+    private boolean pointWithinRectangle(Point point, Rectangle bounds) {
+        return ( (point.getX() < ( bounds.getX() + bounds.getWidth() )) && (point.getX() > bounds.getX())
+            && (point.getY() < ( bounds.getY() + bounds.getHeight())) && (point.getY() > bounds.getY()) );
+    }
+
+    protected double defaultAlpha() {
+        return 1;
+    }
+
+    protected double dragEndEdge(ScrollOrientation orientation) {
+        return 0;
+    }
+
+    protected double startEdge(ScrollOrientation orientation) {
+        return this.scrollMaxOffset[orientation.ordinal()];
+    }
+
+    protected void updateDraggableCopmonents(double newOffset, TouchEvent that, double startEdge, double endEdge,
+                                           ScrollOrientation orientation) {
+        orientation.setOffset(this.innerPanel.getPosition(), newOffset);
+        Scroller scroller = scrollers[orientation.ordinal()];
+        if (scroller != null)
+            scroller.updateCoordK(innerPanelScrolledOffsetK(orientation), true);
+    }
+
+    protected void touchStart(MouseEvent data, TouchEvent that) {
+        double newCoordX = data.getLocalPosition(that.getParent()).getX();
+        double newCoordY = data.getLocalPosition(that.getParent()).getY();
+        if (pointWithinRectangle(PointFactory.newInstance(newCoordX, newCoordY), this.maskBounds)) {
+            super.touchStart(data, that);
+        }
+    }
+
+    @Override
+    protected DisplayObject getMainDragComponent() {
+        return this.innerPanel.getMainComponent();
+    }
+
+    protected double draggingAlpha() {
+        return 1;
+    }
+
+    @Override
+    protected DisplayObject getDraggableComponent() {
+        return this.innerPanel.getMainComponent();
+    }
+
+    @Override
+    protected double getScrollerEdgeLength() {
+        return SCROLLER_EDGE_LENGTH;
     }
 
     private void listeners() {
@@ -79,10 +154,11 @@ public class ScrollPanel extends CustomComponentContainer {
 
     private void onInnerPanelUpdate() {
         updateScrollers();
+        setTouchEvents();
     }
 
     private void mouseWheelReaction(double deltaY) {
-        double scrollMaxY = getScrollMaxY();
+        double scrollMaxY = scrollMaxOffset[VERTICAL_I];
         double currentY = this.getInnerPanel().getPosition().getY();
         double newY = currentY - deltaY;
         if (newY > 0)
@@ -90,13 +166,13 @@ public class ScrollPanel extends CustomComponentContainer {
         if (newY < scrollMaxY)
             newY = scrollMaxY;
         double k = newY / scrollMaxY;
-        scrollYToIfScrollable(k);
-        this.verticalScroller.updateCoordK(k);
+        scrollToIfScrollable(k, ScrollOrientation.VERTICAL);
+        this.scrollers[VERTICAL_I].updateCoordK(k, true);
     }
 
     private void onMouseWheelEvent(MouseWheelEvent event) {
-        if (this.mouseOvered && this.verticalScroller != null && this.verticalScroller.getK() < 1) {
-            if (verticalScroller.getAlpha() == 0)
+        if (this.mouseOvered && this.scrollers[VERTICAL_I] != null && this.scrollers[VERTICAL_I].getK() < 1) {
+            if (scrollers[VERTICAL_I].getAlpha() == 0)
                 mouseOvered();
             double deltaY = event.getDeltaY() * MOUSE_WHEEL_SCROLL_K;
             mouseWheelReaction(deltaY);
@@ -115,54 +191,21 @@ public class ScrollPanel extends CustomComponentContainer {
 
     }-*/;
 
-    public void doScrollXTo(double newPos) {
-        this.getInnerPanel().getPosition().setX(getScrollMaxX() * newPos);
+    public void doScrollTo(double newPos, ScrollOrientation orientation) {
+        orientation.setOffset(this.getInnerPanel().getPosition(), scrollMaxOffset[orientation.ordinal()] * newPos);
     }
 
-    public void doScrollXTo() {
-        doScrollXTo(this.horizontalScroller.getScrollPosition());
+    public void doScrollTo(ScrollOrientation orientation) {
+        doScrollTo(this.scrollers[orientation.ordinal()].getScrollPosition(), orientation);
     }
 
-    public void scrollYToIfScrollable(double newPos) {
-        if (verticalScroller != null)
-            doScrollYTo(newPos);
+    public void scrollToIfScrollable(double newPos, ScrollOrientation orientation) {
+        if (this.scrollers[orientation.ordinal()] != null)
+            doScrollTo(newPos, orientation);
     }
 
-    public void scrollXToIfScrollable(double newPos) {
-        if (horizontalScroller != null)
-            doScrollXTo(newPos);
-    }
-
-    public void doScrollYTo() {
-        doScrollYTo(this.verticalScroller.getScrollPosition());
-    }
-
-    public void doScrollYTo(double newPos) {
-        this.getInnerPanel().getPosition().setY(getScrollMaxY() * newPos);
-    }
-
-    private double innerPanelScrolledYposK() {
-        return this.getInnerPanel().getPosition().getY() / getScrollMaxY();
-    }
-
-    private double innerPanelScrolledXposK() {
-        return this.getInnerPanel().getPosition().getX() / getScrollMaxX();
-    }
-
-    private void setScrollMaxX(double maxX) {
-        this.scrollMaxX = maxX;
-    }
-
-    private double getScrollMaxX() {
-        return this.scrollMaxX;
-    }
-
-    private void setScrollMaxY(double maxY) {
-        this.scrollMaxY = maxY;
-    }
-
-    private double getScrollMaxY() {
-        return this.scrollMaxY;
+    private double innerPanelScrolledOffsetK(ScrollOrientation orientation) {
+        return orientation.getOffset(this.getInnerPanel().getPosition()) / scrollMaxOffset[orientation.ordinal()];
     }
 
     private CustomComponentContainer getInnerPanel() {
@@ -184,111 +227,71 @@ public class ScrollPanel extends CustomComponentContainer {
 
     public void mouseOvered() {
         this.mouseOvered = true;
-        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null) {
-            horizontalScroller.animatedShow();
-        }
-        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null) {
-            verticalScroller.animatedShow();
+        for (Scroller scroller : scrollers) {
+            if (scroller != null && scroller.getMainComponent() != null) {
+                scroller.animatedShow();
+            }
         }
     }
 
     public void mouseOuted() {
         this.mouseOvered = false;
-        if (this.horizontalScroller != null && this.horizontalScroller.getMainComponent() != null && !this.horizontalScroller.isDragging()) {
-            horizontalScroller.animatedHide();
-        }
-        if (this.verticalScroller != null && this.verticalScroller.getMainComponent() != null && !this.verticalScroller.isDragging()) {
-            verticalScroller.animatedHide();
+        for (Scroller scroller : scrollers) {
+            if (scroller != null && scroller.getMainComponent() != null && !scroller.isDragging()) {
+                scroller.animatedHide();
+            }
         }
     }
 
-    private void newHorizontalScroller(double k) {
-        horizontalScroller = Scroller.newHorizontalInstance(this.maskBounds.getWidth(), k, this.scrollXto, 0);
-        addChild(horizontalScroller.getMainComponent());
-        double y = this.maskBounds.getHeight() - Scroller.DEFAULT_WIDE * 2;
-        horizontalScroller.setPosition(PointFactory.newInstance(0, y));
-    }
-
-    private void newVerticalScroller(double k) {
-        verticalScroller = Scroller.newVerticalInstance(this.maskBounds.getHeight(), k, this.scrollYto, 0);
-        addChild(verticalScroller.getMainComponent());
-        double x = this.maskBounds.getWidth() - Scroller.DEFAULT_WIDE * 2;
-        verticalScroller.setPosition(PointFactory.newInstance(x, 0));
+    private void newScroller(double k, ScrollOrientation orientation) {
+        scrollers[orientation.ordinal()] = Scroller.newInstance(orientation.getLength(this.maskBounds), k,
+                this.scrollTo, 0, orientation);
+        addChild(scrollers[orientation.ordinal()].getMainComponent());
+        double offset = orientation.getOrtogonalLength(this.maskBounds) - Scroller.DEFAULT_WIDE * 2;
+        scrollers[orientation.ordinal()].setPosition(orientation.newPoint(0, offset));
     }
 
     private void updateScrollers() {
-        double width1 = getInnerPanel().getBoundedWidth();
-        double width2 = this.maskBounds.getWidth();
-        double maxScrollX = - ( width1 - width2 );
-        setScrollMaxX(maxScrollX);
-        double kw = width2 / width1;
-        if (kw < 1) {
-            updateHorizontalScroller(kw);
-        }
-        else {
-            removeHorizontalScroller();
-            doScrollXTo(0);
-        }
-
-        double height1 = getInnerPanel().getBoundedHeight() + 1;
-        double height2 = this.maskBounds.getHeight();
-        double maxScrollY = - ( height1 - height2 );
-        setScrollMaxY(maxScrollY);
-        double kh = height2 / height1;
-        if (kh < 1) {
-            updateVerticalScroller(kh);
-        }
-        else {
-            removeVerticalScroller();
-            doScrollYTo(0);
+        for (ScrollOrientation orientation : ScrollOrientation.values()) {
+            double length1 = orientation.getBoundedLength(getInnerPanel());
+            if (orientation.equals(ScrollOrientation.VERTICAL))
+                length1 += 1;
+            double length2 = orientation.getLength(this.maskBounds);
+            double maxScrollOffset = 0;
+            if (length1 > length2)
+                maxScrollOffset = -(length1 - length2);
+            scrollMaxOffset[orientation.ordinal()] = maxScrollOffset;
+            double k = length2 / length1;
+            if (k < 1) {
+                updateScroller(k, orientation);
+            } else {
+                removeScroller(orientation);
+                doScrollTo(0, orientation);
+            }
         }
     }
 
-    private void removeHorizontalScroller() {
-        if (horizontalScroller != null) {
-            horizontalScroller.animatedRemove();
-            horizontalScroller = null;
+    private void removeScroller(ScrollOrientation orientation) {
+        if (scrollers[orientation.ordinal()] != null) {
+            scrollers[orientation.ordinal()].animatedRemove();
+            scrollers[orientation.ordinal()] = null;
         }
     }
 
-    private void removeVerticalScroller() {
-        if (verticalScroller != null) {
-            verticalScroller.animatedRemove();
-            verticalScroller = null;
-        }
-    }
-
-    private void updateHorizontalScroller(double k) {
-        if (horizontalScroller == null)
-            newHorizontalScroller(k);
+    private void updateScroller(double k, ScrollOrientation orientation) {
+        if (scrollers[orientation.ordinal()] == null)
+            newScroller(k, orientation);
         else {
-            horizontalScroller.updateK(k);
+            scrollers[orientation.ordinal()].updateK(k);
         }
-        double innerPanelScrolledXposK = innerPanelScrolledXposK();
-        if (innerPanelScrolledXposK() > 1) {
-            doScrollXTo();
+        double innerPanelScrolledOffsetK = innerPanelScrolledOffsetK(orientation);
+        if (innerPanelScrolledOffsetK(orientation) > 1) {
+            doScrollTo(orientation);
         }
         else {
-            horizontalScroller.updateCoordK(innerPanelScrolledXposK);
+            scrollers[orientation.ordinal()].updateCoordK(innerPanelScrolledOffsetK, false);
         }
-        if (this.mouseOvered && horizontalScroller.getAlpha() == 0)
-            mouseOvered();
-    }
-
-    private void updateVerticalScroller(double k) {
-        if (verticalScroller == null)
-            newVerticalScroller(k);
-        else {
-            verticalScroller.updateK(k);
-        }
-        double innerPanelScrolledYposK = innerPanelScrolledYposK();
-        if (innerPanelScrolledYposK > 1) {
-            doScrollYTo();
-        }
-        else {
-            verticalScroller.updateCoordK(innerPanelScrolledYposK);
-        }
-        if (this.mouseOvered && verticalScroller.getAlpha() == 0)
+        if (this.mouseOvered && scrollers[orientation.ordinal()].getAlpha() == 0)
             mouseOvered();
     }
 

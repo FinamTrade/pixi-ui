@@ -5,6 +5,6 @@ package ru.finam.canvasui.client.js.pixi.custom;
  */
 public interface ScrollCallback {
 
-    void onScroll(double pos);
+    void onScroll(double pos, ScrollOrientation orientation);
 
 }
