@@ -105,7 +105,7 @@ public class ScrollPanel extends HasDraggableComponent {
         orientation.setOffset(this.innerPanel.getPosition(), newOffset);
         Scroller scroller = scrollers[orientation.ordinal()];
         if (scroller != null)
-            scroller.updateCoordK(innerPanelScrolledOffsetK(orientation), true);
+            scroller.updateScrollPosK(innerPanelScrolledOffsetK(orientation), true);
     }
 
     protected void touchStart(MouseEvent data, TouchEvent that) {
@@ -167,7 +167,7 @@ public class ScrollPanel extends HasDraggableComponent {
             newY = scrollMaxY;
         double k = newY / scrollMaxY;
         scrollToIfScrollable(k, ScrollOrientation.VERTICAL);
-        this.scrollers[VERTICAL_I].updateCoordK(k, true);
+        this.scrollers[VERTICAL_I].updateScrollPosK(k, true);
     }
 
     private void onMouseWheelEvent(MouseWheelEvent event) {
@@ -279,17 +279,14 @@ public class ScrollPanel extends HasDraggableComponent {
     }
 
     private void updateScroller(double k, ScrollOrientation orientation) {
+        double innerPanelScrolledOffsetK = innerPanelScrolledOffsetK(orientation);
         if (scrollers[orientation.ordinal()] == null)
             newScroller(k, orientation);
         else {
-            scrollers[orientation.ordinal()].updateK(k);
+            scrollers[orientation.ordinal()].updateK(k, innerPanelScrolledOffsetK);
         }
-        double innerPanelScrolledOffsetK = innerPanelScrolledOffsetK(orientation);
         if (innerPanelScrolledOffsetK(orientation) > 1) {
             doScrollTo(orientation);
-        }
-        else {
-            scrollers[orientation.ordinal()].updateCoordK(innerPanelScrolledOffsetK, false);
         }
         if (this.mouseOvered && scrollers[orientation.ordinal()].getAlpha() == 0)
             mouseOvered();

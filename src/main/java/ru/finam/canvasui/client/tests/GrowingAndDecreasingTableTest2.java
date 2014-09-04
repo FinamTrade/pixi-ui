@@ -47,7 +47,7 @@ public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
                 runTimer();
             }
         };
-        timer.scheduleRepeating(1000);
+        timer.scheduleRepeating(2000);
         randomValuesTable = new RandomValuesTable(5, 3);
         stage.addChildToCenter(fixedSizeScrollPanel1(randomValuesTable), width, height);
         return stage;

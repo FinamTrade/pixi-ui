@@ -18,6 +18,8 @@ public class Scroller extends HasDraggableComponent {
     private static final double SCROLLER_EDGE_LENGTH = 4;
     private static final double RESIZE_ANI_DURATION = 3.8;
     private static final double SCROLL_TOGGLE_DURATION = 1;
+    private static final String SCROLLER_MIDDLE_OFFSET = "scrollerMiddlePos";
+    private static final String SCROLLER_TAIL_OFFSET = "scrollerTailPos";
 
     private DisplayObjectContainer scrollerContainer;
     private ScrollOrientation orientation;
@@ -27,40 +29,21 @@ public class Scroller extends HasDraggableComponent {
     private double endEdge;
     private double k;
     private double fullLength;
-    private WrappedDouble scrollPosition = new WrappedDouble(0);
+    private double scrollPosition;
     private ScrollCallback scrollCallback;
     private Integer scrollerLength = null;
     private TimelineLite resizeTimeline;
-    private TimelineLite moveTimeline;
     private PropertiesSet tScrollerLengthHolder;
 
-    private class WrappedDouble {
-
-        private PropertiesSet propertiesSet = new PropertiesSet();
-
-        private WrappedDouble(double d) {
-            setValue(d);
-        }
-
-        public double getValue() {
-            return propertiesSet.doubleKeyValue("val");
-        }
-
-        public void setValue(double d) {
-            propertiesSet.addKeyValue("val", d);
-        }
-
-        public JsObject jsObject() {
-            return propertiesSet.getJsObject();
-        }
-
+    public double getScrollPosition() {
+        return scrollPosition;
     }
 
     protected Scroller(double k,
                        double scrollPosition,
                        ScrollCallback scrollCallback, ScrollOrientation orientation, double length) {
         super();
-        this.scrollPosition = new WrappedDouble(scrollPosition);
+        this.scrollPosition = scrollPosition;
         this.orientation = orientation;
         this.scrollCallback = scrollCallback;
         this.k = k;
@@ -105,50 +88,68 @@ public class Scroller extends HasDraggableComponent {
         return SCROLLER_EDGE_LENGTH;
     }
 
-    private void updateCoord(double newCoord) {
-        updateCoord(newCoord, null);
+    private void completeResizeTimeLineImmediately() {
+        resizeTimeline().progress(1, true);
+        dUpdateScrollerSize();
     }
 
-    public void updateCoordK(double k, boolean immediatly) {
-        if (k != this.scrollPosition.getValue()) {
-            moveTimeline().kill(null, this.scrollPosition.jsObject());
-            if (immediatly)
-                this.scrollPosition.setValue(k);
-            else {
-                moveTimeline().to(this.scrollPosition.jsObject(), RESIZE_ANI_DURATION,
-                        new PropertiesSet().addKeyValue("val", k).getJsObject(), null);
-            }
+    private void startAnimatedResize(double scrollerMiddleOffset, double scrollerEndOffset) {
+        if (!
+                ( tScrollerLengthHolder.doubleKeyValue(SCROLLER_MIDDLE_OFFSET) == scrollerMiddleOffset &&
+                        tScrollerLengthHolder.doubleKeyValue(SCROLLER_TAIL_OFFSET) == scrollerEndOffset )
+                )
+            resizeTimeline().to(this.tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION,
+                    new PropertiesSet().addKeyValue(SCROLLER_MIDDLE_OFFSET, scrollerMiddleOffset)
+                            .addKeyValue(SCROLLER_TAIL_OFFSET, scrollerEndOffset).getJsObject(), null);
+    }
+
+    public void updateScrollPosK(double scrollPos, boolean immediatly) {
+        double scrollerMiddleOffset = newScrollerMiddleCoord(scrollPos);
+        double scrollerEndOffset = scrollerMiddleOffset + scrollerMiddleLength();
+        if (immediatly) {
+            completeResizeTimeLineImmediately();
+            this.scrollPosition = scrollPos;
+            updateScrollPosCoord(scrollerMiddleOffset);
         }
-        double startEdge = SCROLLER_EDGE_LENGTH;
-        double newCoord = k * (endEdge - startEdge) + startEdge;
-        updateCoord(newCoord);
+        else {
+            startAnimatedResize(scrollerMiddleOffset, scrollerEndOffset);
+        }
     }
 
-    private void updateCoord(double newCoord, TouchEvent that) {
+    private void updateScrollPosCoord(double newCoord) {
+        updateScrollPosCoord(newCoord, null);
+    }
+
+    private void updateScrollPosCoord(double newCoord, TouchEvent that) {
+        this.tScrollerLengthHolder.addKeyValue(SCROLLER_MIDDLE_OFFSET, newCoord);
         double startEdge = SCROLLER_EDGE_LENGTH;
         if (this.orientation.equals(ScrollOrientation.HORIZONTAL)) {
             if (that != null)
                 that.getPosition().setX(newCoord);
             this.scrollerForward.getPosition().setX( newCoord - startEdge );
             this.scrollerMiddle.getPosition().setX( newCoord );
-            this.scrollerTail.getPosition().setX( newCoord + this.scrollerMiddle.getWidth() );
+            double tailPos = newCoord + this.scrollerMiddle.getWidth();
+            this.scrollerTail.getPosition().setX( tailPos );
+            this.tScrollerLengthHolder.addKeyValue(SCROLLER_TAIL_OFFSET, tailPos );
         }
         if (this.orientation.equals(ScrollOrientation.VERTICAL)) {
             if (that != null)
                 that.getPosition().setY(newCoord);
             this.scrollerForward.getPosition().setY(newCoord - startEdge);
             this.scrollerMiddle.getPosition().setY( newCoord );
-            this.scrollerTail.getPosition().setY(newCoord + this.scrollerMiddle.getHeight());
+            double tailPos = newCoord + this.scrollerMiddle.getHeight();
+            this.scrollerTail.getPosition().setY(tailPos);
+            this.tScrollerLengthHolder.addKeyValue(SCROLLER_TAIL_OFFSET, tailPos );
         }
     }
 
     protected void updateDraggableCopmonents(double newOffset, TouchEvent that, double startEdge, double endEdge,
                                            ScrollOrientation orientation) {
         if (orientation.equals(this.orientation)) {
-            moveTimeline().kill(null, this.scrollPosition.jsObject());
-            updateCoord(newOffset, that);
-            this.scrollPosition.setValue( (newOffset - startEdge) / (endEdge - startEdge) );
-            this.doScrollCallback(scrollPosition.getValue());
+            resizeTimeline().progress(1, true);
+            updateScrollPosCoord(newOffset, that);
+            this.scrollPosition = (newOffset - startEdge) / (endEdge - startEdge);
+            this.doScrollCallback(scrollPosition);
         }
     }
 
@@ -189,9 +190,17 @@ public class Scroller extends HasDraggableComponent {
         return "";
     }
 
+    private  int scrollerMiddleLength() {
+        return scrollerMiddleLength(scrollerLength);
+    }
+
+    private  int scrollerMiddleLength(int scrollerLength) {
+        return (int) ( scrollerLength - 2 * SCROLLER_EDGE_LENGTH );
+    }
+
     private int scrollerMiddleWidth(ScrollOrientation orientation, Sprite scrollerMiddle) {
         if (orientation.equals(ScrollOrientation.HORIZONTAL)) {
-            return (int) ( scrollerLength - 2 * SCROLLER_EDGE_LENGTH );
+            return scrollerMiddleLength();
         }
         if (orientation.equals(ScrollOrientation.VERTICAL)) {
             return DEFAULT_WIDE * 2;
@@ -201,7 +210,7 @@ public class Scroller extends HasDraggableComponent {
 
     private int scrollerMiddleHeight(ScrollOrientation orientation, Sprite scrollerMiddle) {
         if (orientation.equals(ScrollOrientation.VERTICAL)) {
-            return (int) ( scrollerLength - 2 * SCROLLER_EDGE_LENGTH );
+            return scrollerMiddleLength();
         }
         if (orientation.equals(ScrollOrientation.HORIZONTAL)) {
             return DEFAULT_WIDE * 2;
@@ -229,39 +238,57 @@ public class Scroller extends HasDraggableComponent {
         throw new AssertionError();
     }
 
-    public void updateK(double k) {
+    public void updateK(double k, double newScrollPos) {
         this.k = k;
-        updateScrollerSize();
+        newScrollPos = newScrollPos > 1 ? newScrollPos = 1 : newScrollPos < 0 ? 0 : newScrollPos;
+        updateScrollerSize(newScrollPos);
     }
 
     private final native JsObject onRepeat(Scroller inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.Scroller::updateScrollerSizeWithTval()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.Scroller::dUpdateScrollerSize()();
         };
     }-*/;
 
-    private void animatedUpdateScrollerSize() {
-        tScrollerLengthHolder.addKeyValue("val", scrollerLength);
+    private double newScrollerMiddleCoord() {
+        return newScrollerMiddleCoord(this.scrollPosition);
+    }
+
+    private double newScrollerMiddleCoord(double posK) {
+        double newScrollCoord = posK * (this.fullLength - scrollerLength() ) + SCROLLER_EDGE_LENGTH;
+        return newScrollCoord;
+    }
+
+    private void animatedUpdateScrollerSize(double newScrollPos) {
+        double newScrollBegin = newScrollerMiddleCoord(newScrollPos);
+        double newScrollerEnd = newScrollBegin + scrollerMiddleLength(scrollerLength());
         resizeTimeline().kill(null, tScrollerLengthHolder.getJsObject());
         resizeTimeline().duration(RESIZE_ANI_DURATION);
         resizeTimeline().totalDuration(RESIZE_ANI_DURATION);
         resizeTimeline().delay(0);
-        resizeTimeline().to(tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION, new PropertiesSet().addKeyValue("val",
-                scrollerLength(this.fullLength)).getJsObject(), null);
+        resizeTimeline().to(tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION, new PropertiesSet().addKeyValue(SCROLLER_MIDDLE_OFFSET,
+                newScrollBegin).addKeyValue(SCROLLER_TAIL_OFFSET,
+                newScrollerEnd).getJsObject(), null);
     }
 
-    private void updateScrollerSizeWithTval() {
-        updateScrollerSize((int) tScrollerLengthHolder.doubleKeyValue("val"));
+    private void dUpdateScrollerSize() {
+        updateScrollerSizeOnly(scrollerLength((int) tScrollerLengthHolder.doubleKeyValue(SCROLLER_MIDDLE_OFFSET),
+                (int) tScrollerLengthHolder.doubleKeyValue(SCROLLER_TAIL_OFFSET)));
+        updateScrollPosCoord((int) tScrollerLengthHolder.doubleKeyValue(SCROLLER_MIDDLE_OFFSET));
     }
 
     private void updateScrollerSize() {
-        if (scrollerLength == null)
-            updateScrollerSize(scrollerLength(this.fullLength));
-        else
-            animatedUpdateScrollerSize();
+        updateScrollerSize(this.scrollPosition);
     }
 
-    private void updateScrollerSize(int scrollerLength) {
+    private void updateScrollerSize(double newScrollPos) {
+        if (scrollerLength == null)
+            updateScrollerSize(scrollerLength(), newScrollPos);
+        else
+            animatedUpdateScrollerSize(newScrollPos);
+    }
+
+    private void updateScrollerSizeOnly(int scrollerLength) {
         this.scrollerLength = scrollerLength;
         scrollerMiddle.setWidth(scrollerMiddleWidth(orientation, scrollerMiddle));
         scrollerMiddle.setHeight(scrollerMiddleHeight(orientation, scrollerMiddle));
@@ -270,12 +297,17 @@ public class Scroller extends HasDraggableComponent {
         scrollerMiddle.setInteractive(true);
         scrollerMiddle.setButtonMode(true);
         this.endEdge = this.fullLength - scrollerLength + SCROLLER_EDGE_LENGTH;
-        updateCoordK(this.scrollPosition.getValue(), false);
+    }
+
+    private void updateScrollerSize(int scrollerLength, double newScrollPos) {
+        updateScrollerSizeOnly(scrollerLength);
+        updateScrollPosK(newScrollPos, false);
     }
 
     private final void addGraphics() {
         tScrollerLengthHolder = new PropertiesSet();
-        tScrollerLengthHolder.addKeyValue("val", 0);
+        tScrollerLengthHolder.addKeyValue(SCROLLER_MIDDLE_OFFSET, SCROLLER_EDGE_LENGTH);
+        tScrollerLengthHolder.addKeyValue(SCROLLER_TAIL_OFFSET, this.scrollerLength() - SCROLLER_EDGE_LENGTH);
 
         this.scrollerContainer = DisplayObjectContainer.Factory.newInstance();
         Texture textureScrollerForward = TextureFactory.fromImage(getScrollerForwardTexturePath(orientation));
@@ -336,23 +368,22 @@ public class Scroller extends HasDraggableComponent {
         return resizeTimeline;
     }
 
-    public TimelineLite moveTimeline() {
-        if (moveTimeline == null)
-            moveTimeline = TimelineLite.Factory.newInstance();
-        return moveTimeline;
+    private int scrollerLength(int middlePos, int tailPos) {
+        int newLength = (int) ( tailPos - middlePos + 2 * SCROLLER_EDGE_LENGTH );
+        return scrollerLength(newLength);
     }
 
-    private int scrollerLength(double lenth) {
-        int newLength = (int) (lenth * this.k);
+    private int scrollerLength(int newLength) {
         return newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
+    }
+
+    private int scrollerLength() {
+        int newLength = (int) (this.fullLength * k);
+        return scrollerLength(newLength);
     }
 
     public double getK() {
         return k;
-    }
-
-    public double getScrollPosition() {
-        return scrollPosition.getValue();
     }
 
     @Override

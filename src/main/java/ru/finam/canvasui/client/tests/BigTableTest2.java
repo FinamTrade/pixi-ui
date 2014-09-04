@@ -27,7 +27,7 @@ public class BigTableTest2 extends PixiScrollerTest {
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
         //innerPanel.setWidth(innerPanel.getBoundedWidth() - 11);
         int width = (int) innerPanel.getBoundedWidth();
-        ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width, 300);
+        ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width, 500);
         return scrollPanel;
     }
 
