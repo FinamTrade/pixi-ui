@@ -1,9 +1,8 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
 
 /**

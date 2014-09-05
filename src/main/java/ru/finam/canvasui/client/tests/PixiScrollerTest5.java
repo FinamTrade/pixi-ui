@@ -78,7 +78,7 @@ public class PixiScrollerTest5 extends PixiScrollerTest {
     }
 
     @Override
-    LayoutedStage newTestStage(int width, int height, String... images) {
+    public LayoutedStage newTestStage(int width, int height, String... images) {
         return null;
     }
 

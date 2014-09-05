@@ -1,9 +1,10 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
-import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.Point;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
+import ru.finam.canvasui.client.js.pixi.custom.CustomComponent;
+import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 
 /**
  * Created by ikusch on 02.09.2014.
@@ -97,4 +98,5 @@ public enum ScrollOrientation {
     public abstract double getOrtogonalLength(Rectangle rectangle);
 
     public abstract Point newPoint(double directOffset, double ortogonalOffset);
+
 }

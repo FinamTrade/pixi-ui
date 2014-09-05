@@ -8,12 +8,12 @@ import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
 
 /**
- * Created by ikusch on 01.09.2014.
+ * Created by ikusch on 05.09.2014.
  */
-public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
+public class GrowingAndDecreasingTableTest3 extends PixiScrollerTest  {
 
     int i = 0;
-    int MAX = 5;
+    int MAX = 10;
     int MIN = 1;
     int mode = 0;
     private Timer timer;
@@ -32,6 +32,10 @@ public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
             mode = 1;
         if (i < MIN)
             mode = 0;
+        if (mode == 1 && i<9) {
+            timer.cancel();
+        }
+        JsConsole.log("i = " + i);
         //cancel();
     }
 
@@ -55,14 +59,14 @@ public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
 
     @Override
     public String name() {
-        return "Growing And Decreasing Table 2";
+        return "Growing And Decreasing Table 3";
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
         //innerPanel.setWidth(innerPanel.getBoundedWidth() - 11);
         int width = (int) innerPanel.getBoundedWidth();
         int height = (int) innerPanel.getBoundedHeight();
-        ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width - 11, height * 2);
+        ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width - 21, height * 2);
         return scrollPanel;
     }
 

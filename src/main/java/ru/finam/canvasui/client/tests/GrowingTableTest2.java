@@ -3,7 +3,7 @@ package ru.finam.canvasui.client.tests;
 import com.google.gwt.user.client.Timer;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
 
 /**
@@ -28,7 +28,7 @@ public class GrowingTableTest2 extends PixiScrollerTest {
                 if (i > MAX)
                     cancel();
             }
-        }.scheduleRepeating(1000);
+        }.scheduleRepeating(4000);
         //stage.addChildToCenter(d, width, height);
         stage.addChildToCenter(fixedSizeScrollPanel1(d), width, height);
         return stage;

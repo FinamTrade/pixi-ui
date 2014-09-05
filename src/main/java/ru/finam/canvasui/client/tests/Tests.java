@@ -101,6 +101,7 @@ public class Tests {
         addNewTest(rendererContainerId, new TableTest6(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest(), menuContainerId);
         addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest2(), menuContainerId);
+        addNewTest(rendererContainerId, new GrowingAndDecreasingTableTest3(), menuContainerId);
         addNewTest(rendererContainerId, new BorderedImageTest(), menuContainerId);
         currentTest = tests.get(0);
         start(rendererContainerId);

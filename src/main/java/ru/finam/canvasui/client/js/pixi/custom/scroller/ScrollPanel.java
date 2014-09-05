@@ -1,12 +1,11 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.DisplayObject;
-import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.js.pixi.Graphics;
-import ru.finam.canvasui.client.js.pixi.Rectangle;
+import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
+import ru.finam.canvasui.client.js.pixi.custom.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.channel.EventListener;
 import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
@@ -14,17 +13,17 @@ import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class ScrollPanel extends HasDraggableComponent {
+public class ScrollPanel extends HasKinematicDraggableComponent {
 
+    private static final double DEF_WRAPPER_SIZE = 100;
     private static final int MOUSE_WHEEL_SCROLL_K = 3;
     private static final int VERTICAL_I = ScrollOrientation.VERTICAL.ordinal();
     private static final int HORIZONTAL_I = ScrollOrientation.HORIZONTAL.ordinal();
-    private static final int ORIENTATIONS_LENGTH = ScrollOrientation.values().length;
     private static final double SCROLLER_EDGE_LENGTH = 0;
+    private static final double DRAG_TRESHOLD = 8;
     private Scroller[] scrollers = new Scroller[ORIENTATIONS_LENGTH];
     private Rectangle maskBounds;
     public Graphics maskObject;
-    private double[] scrollMaxOffset = new double[ORIENTATIONS_LENGTH];
     private boolean mouseOvered = false;
     private CustomComponentContainer innerPanel;
     private ScrollCallback scrollTo = new ScrollCallback() {
@@ -33,6 +32,7 @@ public class ScrollPanel extends HasDraggableComponent {
             scrollToIfScrollable(pos, orientation);
         }
     };
+    private Point dragStartPos;
 
     protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds, CustomComponentContainer innerPanel, boolean drawBorders) {
         super(mainContainer);
@@ -66,19 +66,19 @@ public class ScrollPanel extends HasDraggableComponent {
         innerPanel.mousedown =
         innerPanel.touchstart = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         };
 
         innerPanel.mouseup = innerPanel.mouseupoutside =
         innerPanel.touchend = innerPanel.touchendoutside = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         };
 
         innerPanel.mousemove =
         innerPanel.touchmove = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
         }
 
     }-*/;
@@ -92,6 +92,10 @@ public class ScrollPanel extends HasDraggableComponent {
         return 1;
     }
 
+    protected double getVisibleLength(ScrollOrientation orientation) {
+        return orientation.getLength(maskBounds);
+    }
+
     protected double dragEndEdge(ScrollOrientation orientation) {
         return 0;
     }
@@ -100,7 +104,7 @@ public class ScrollPanel extends HasDraggableComponent {
         return this.scrollMaxOffset[orientation.ordinal()];
     }
 
-    protected void updateDraggableCopmonents(double newOffset, TouchEvent that, double startEdge, double endEdge,
+    protected void updateDraggableCopmonents(double newOffset, TouchEvent that,
                                            ScrollOrientation orientation) {
         orientation.setOffset(this.innerPanel.getPosition(), newOffset);
         Scroller scroller = scrollers[orientation.ordinal()];
@@ -114,6 +118,19 @@ public class ScrollPanel extends HasDraggableComponent {
         if (pointWithinRectangle(PointFactory.newInstance(newCoordX, newCoordY), this.maskBounds)) {
             super.touchStart(data, that);
         }
+    }
+
+    @Override
+    protected double dragWrapperSize(ScrollOrientation orientation) {
+        if (scrollers[orientation.ordinal()] != null)
+            return Math.min(getVisibleLength(orientation) / 5, DEF_WRAPPER_SIZE);
+        else
+            return 0;
+    }
+
+    @Override
+    protected double dragTreshold() {
+        return DRAG_TRESHOLD;
     }
 
     @Override
@@ -182,11 +199,11 @@ public class ScrollPanel extends HasDraggableComponent {
     private static native void setMouseOverEvents(ScrollPanel scrollPanel, DisplayObject displayObject) /*-{
 
         displayObject.mouseover = function(mouseData){
-            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOvered()();
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::mouseOvered()();
         }
 
         displayObject.mouseout = function(mouseData){
-            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.ScrollPanel::mouseOuted()();
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::mouseOuted()();
         }
 
     }-*/;
@@ -285,11 +302,15 @@ public class ScrollPanel extends HasDraggableComponent {
         else {
             scrollers[orientation.ordinal()].updateK(k, innerPanelScrolledOffsetK);
         }
-        if (innerPanelScrolledOffsetK(orientation) > 1) {
+        if (innerPanelScrolledOffsetK(orientation) > 1 && (!( isDragging() || flickerAnimationIsActive() ))) {
             doScrollTo(orientation);
         }
         if (this.mouseOvered && scrollers[orientation.ordinal()].getAlpha() == 0)
             mouseOvered();
+    }
+
+    private boolean flickerAnimationIsActive() {
+        return flickTimeline().isActive();
     }
 
     private Graphics newMaskObject() {
@@ -318,6 +339,25 @@ public class ScrollPanel extends HasDraggableComponent {
 
     public static ScrollPanel newInstance(CustomComponentContainer innerPanel) {
         return newInstance(innerPanel, (int) innerPanel.getBoundedWidth(), (int) innerPanel.getBoundedHeight(), false);
+    }
+
+    @Override
+    protected void killOtherAnimations() {
+        if (scrollers[ScrollOrientation.HORIZONTAL.ordinal()] != null) {
+            //scrollers[ScrollOrientation.HORIZONTAL.ordinal()].killAnimations();
+            if (scrollers[ScrollOrientation.HORIZONTAL.ordinal()].resizeTimeline().getProgress() < 1) {
+                scrollers[ScrollOrientation.HORIZONTAL.ordinal()].resizeTimeline().progress(1, true);
+                scrollers[ScrollOrientation.HORIZONTAL.ordinal()].killAnimations();
+            }
+        }
+        if (scrollers[ScrollOrientation.VERTICAL.ordinal()] != null) {
+            //scrollers[ScrollOrientation.VERTICAL.ordinal()].killAnimations();
+            //scrollers[ScrollOrientation.VERTICAL.ordinal()].completeResizeTimeLineImmediately();
+            if (scrollers[ScrollOrientation.VERTICAL.ordinal()].resizeTimeline().getProgress() < 1) {
+                scrollers[ScrollOrientation.VERTICAL.ordinal()].resizeTimeline().progress(1, true);
+                scrollers[ScrollOrientation.VERTICAL.ordinal()].killAnimations();
+            }
+        }
     }
 
 }

@@ -4,8 +4,8 @@ import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 
 /**
  * Created by ikusch on 29.08.2014.

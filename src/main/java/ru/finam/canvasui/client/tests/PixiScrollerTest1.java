@@ -5,8 +5,8 @@ import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 
 /**
  * Created with IntelliJ IDEA.

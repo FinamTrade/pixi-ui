@@ -9,4 +9,7 @@ public class PointFactory {
         return new $wnd.PIXI.Point(x, y);
     }-*/;
 
+    public static Point newInstance(Point point) {
+        return newInstance(point.getX(), point.getY());
+    }
 }
