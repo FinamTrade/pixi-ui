@@ -8,14 +8,11 @@ import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
  */
 public class PixiScrollerTest6 extends PixiScrollerTest {
 
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+    public static final String NAME = "Test6";
+
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
         DisplayObjectContainer displayObjectContainer = newSampleImage(images[1]);
         stage.addChildToCenter(displayObjectContainer, width, height);
-        return stage;
-    }
-
-    public String name() {
-        return "Test6";
     }
 }

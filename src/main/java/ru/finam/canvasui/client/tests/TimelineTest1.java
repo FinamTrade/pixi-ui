@@ -16,11 +16,13 @@ import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
  */
 public class TimelineTest1 extends PixiScrollerTest {
 
+    public static final String NAME = "TimelineTest1";
+
     @Override
-    public LayoutedStage newTestStage(int width, int height, String... images) {
+    public void fillStage(int width, int height, String... images) {
 
 
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+        stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
         stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
         DisplayObjectContainer d = newSampleImage(images[1]);
@@ -64,7 +66,6 @@ public class TimelineTest1 extends PixiScrollerTest {
         //Window.alert("timelineLite.getTotalTime() = " + timelineLite.getTotalTime());
         */
         d.setPosition(PointFactory.newInstance(23, 78));
-        return stage;
     }
 
     private final native JsObject newEventCallback() /*-{
@@ -76,11 +77,6 @@ public class TimelineTest1 extends PixiScrollerTest {
     private final native JsObject newAnimateProps() /*-{
         return { alpha:0 };
     }-*/;
-
-    @Override
-    public String name() {
-        return "TimelineTest1";
-    }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
         int width = (int) innerPanel.getWidth();

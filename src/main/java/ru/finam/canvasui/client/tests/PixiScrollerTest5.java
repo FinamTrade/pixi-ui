@@ -14,6 +14,8 @@ import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
  */
 public class PixiScrollerTest5 extends PixiScrollerTest {
 
+    public static final String NAME = "Test5";
+
     public static void createRender(String rendererContainerId) {
         RootPanel element = RootPanel.get(rendererContainerId);
         element.getElement().getStyle().setPadding(0, Style.Unit.PX);
@@ -78,12 +80,7 @@ public class PixiScrollerTest5 extends PixiScrollerTest {
     }
 
     @Override
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        return null;
-    }
-
-    public String name() {
-        return "Test5";
+    public void fillStage(int width, int height, String... images) {
     }
 
 }

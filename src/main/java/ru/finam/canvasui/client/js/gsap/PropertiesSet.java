@@ -20,6 +20,11 @@ public class PropertiesSet {
         return this;
     }
 
+    public PropertiesSet addKeyValue(String key, JsObject value) {
+        addKeyValue(jsObject, key, value);
+        return this;
+    }
+
     public PropertiesSet addKeyValue(String key, double value) {
         addKeyValue(jsObject, key, value);
         return this;
@@ -35,6 +40,11 @@ public class PropertiesSet {
     }-*/;
 
     private final native PropertiesSet addKeyValue(JsObject obj, String key, double value) /*-{
+        obj[key] = value;
+        return obj;
+    }-*/;
+
+    private final native PropertiesSet addKeyValue(JsObject obj, String key, JsObject value) /*-{
         obj[key] = value;
         return obj;
     }-*/;

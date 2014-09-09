@@ -30,7 +30,7 @@ public interface Quad extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Quad.easeIn;
+            return $wnd.Quad.easeIn;
         }-*/;
 
         /**
@@ -40,7 +40,7 @@ public interface Quad extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Quad.easeInOut;
+            return $wnd.Quad.easeInOut;
         }-*/;
 
         /**
@@ -49,8 +49,8 @@ public interface Quad extends JsObject {
          * @return - Ease
          *
          */
-        public static final native Ease easeOut () /*-{
-            return $wnd.easing.Quad.easeOut;
+        public static final native Ease easeOut() /*-{
+            return $wnd.Quad.easeOut;
         }-*/;
 
     }

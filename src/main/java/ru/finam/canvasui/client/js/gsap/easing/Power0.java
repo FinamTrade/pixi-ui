@@ -31,7 +31,7 @@ public interface Power0 extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Power0.easeIn;
+            return $wnd.Power0.easeIn;
         }-*/;
 
         /**
@@ -43,7 +43,7 @@ public interface Power0 extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Power0.easeInOut;
+            return $wnd.Power0.easeInOut;
         }-*/;
 
         /**
@@ -55,7 +55,7 @@ public interface Power0 extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Power0.easeOut;
+            return $wnd.Power0.easeOut;
         }-*/;
 
     }

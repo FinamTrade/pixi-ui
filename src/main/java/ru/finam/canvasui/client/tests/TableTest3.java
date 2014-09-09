@@ -10,17 +10,13 @@ import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
  */
 public class TableTest3 extends PixiScrollerTest {
 
-    @Override
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
-        final RandomValuesTable d = new RandomValuesTable(5, 4);
-        stage.addChildToCenter(fixedSizeScrollPanel1(d), width, height);
-        return stage;
-    }
+    public static final String NAME = "TableTest3";
 
     @Override
-    public String name() {
-        return "TableTest3";
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
+        final RandomValuesTable d = new RandomValuesTable(5, 4);
+        stage.addChildToCenter(fixedSizeScrollPanel1(d), width, height);
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

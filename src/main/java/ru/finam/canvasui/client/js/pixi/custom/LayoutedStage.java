@@ -86,6 +86,18 @@ public class LayoutedStage {
             }
     }
 
+    public void clear() {
+        Array<DisplayObject> childrens = getChildren();
+        for (int i = 0; i < childrens.getLength(); ++i) {
+            DisplayObject child = getArrayEl(childrens, i);
+            removeChild(child);
+        }
+    }
+
+    private void removeChild(DisplayObject child) {
+        stage.removeChild(child);
+    }
+
     public final Set<JsObject> collectUpdateFunctions() {
         updateFunctions = new HashSet<>();
         Stage stage = getStage();
@@ -144,5 +156,9 @@ public class LayoutedStage {
 
     public Rectangle getBounds() {
         return stage.getBounds();
+    }
+
+    public Array<DisplayObject> getChildren() {
+        return stage.getChildren();
     }
 }

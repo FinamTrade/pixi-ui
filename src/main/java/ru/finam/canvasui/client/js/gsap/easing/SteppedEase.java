@@ -35,7 +35,7 @@ public interface SteppedEase extends Ease {
          *
          */
         public static final native SteppedEase config(int steps) /*-{
-            return $wnd.easing.SteppedEase.config(steps);
+            return $wnd.SteppedEase.config(steps);
         }-*/;
 
     }

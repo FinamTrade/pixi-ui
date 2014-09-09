@@ -85,7 +85,7 @@ public interface SlowMo extends Ease {
          *
          */
         public static final native SlowMo construct(double linearRatio, double power, boolean yoyoMode) /*-{
-            return new $wnd.easing.SlowMo(linearRatio, power, yoyoMode);
+            return new $wnd.SlowMo(linearRatio, power, yoyoMode);
         }-*/;
 
     }
@@ -98,7 +98,7 @@ public interface SlowMo extends Ease {
          * creating a new instance each time.
          */
         public static final native SlowMo ease() /*-{
-            return $wnd.easing.SlowMo.ease;
+            return $wnd.SlowMo.ease;
         }-*/;
 
     }

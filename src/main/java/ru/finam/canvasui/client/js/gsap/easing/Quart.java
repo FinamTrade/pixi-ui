@@ -30,7 +30,7 @@ public interface Quart extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Power3.easeIn;
+            return $wnd.Power3.easeIn;
         }-*/;
 
         /**
@@ -40,7 +40,7 @@ public interface Quart extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Power3.easeInOut;
+            return $wnd.Power3.easeInOut;
         }-*/;
 
         /**
@@ -50,7 +50,7 @@ public interface Quart extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Power3.easeOut;
+            return $wnd.Power3.easeOut;
         }-*/;
 
     }

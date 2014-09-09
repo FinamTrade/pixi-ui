@@ -11,12 +11,14 @@ import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
  */
 public class GrowingTableTest2 extends PixiScrollerTest {
 
+    public static final String NAME = "GrowingTableTest2";
+
     int i = 0;
     int MAX = 500;
 
     @Override
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
         //DisplayObjectContainer d = newSampleImage(images[1]);
         i = 0;
         final RandomValuesTable d = new RandomValuesTable(5, 21);
@@ -31,12 +33,6 @@ public class GrowingTableTest2 extends PixiScrollerTest {
         }.scheduleRepeating(4000);
         //stage.addChildToCenter(d, width, height);
         stage.addChildToCenter(fixedSizeScrollPanel1(d), width, height);
-        return stage;
-    }
-
-    @Override
-    public String name() {
-        return "GrowingTableTest2";
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

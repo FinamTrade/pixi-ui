@@ -1,9 +1,5 @@
 package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
-import ru.finam.canvasui.client.JsConsole;
-import ru.finam.canvasui.client.js.JsObject;
-import ru.finam.canvasui.client.js.gsap.PropertiesSet;
-import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
@@ -17,6 +13,7 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
 
     protected static final int ORIENTATIONS_LENGTH = ScrollOrientation.values().length;
     private static final long DRAG_TIME_TRESHOLD = 300;
+    private static final double DRAG_OFFSET_DELTA_MAX = 50;
     private Point touchStartDiff = PointFactory.newInstance(0, 0);
     protected Point dragStartPos;
     private boolean dragStarted;
@@ -27,7 +24,7 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
 
     protected abstract DisplayObject getMainDragComponent();
     protected abstract double draggingAlpha();
-    protected abstract DisplayObject getDraggableComponent();
+    protected abstract DisplayObjectContainer getDraggableComponent();
     protected abstract double getScrollerEdgeLength();
     protected abstract double dragEndEdge(ScrollOrientation scrollOrientation);
     protected abstract double startEdge(ScrollOrientation scrollOrientation);
@@ -95,7 +92,12 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         this.setDragging(true);
         this.getMainDragComponent().setAlpha(draggingAlpha());
         calcTouchStartDiff(data, that);
+        touchStarted();
     }
+
+    protected void touchStarted() {
+    }
+
     protected void dragStarted(ScrollOrientation orientation, double newOffset, double prevOffset) {
         dragStarted = true;
         orientation.setOffset(offsetDelta, newOffset - prevOffset);
@@ -103,6 +105,10 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
 
     private void touchMove(ScrollOrientation orientation, Point newCoord, TouchEvent that) {
         double newOffset = orientation.getOffset(newCoord);
+        double currentOffset = orientation.getOffset(getDraggableComponent().getPosition());
+        if (Math.abs(newOffset - currentOffset) > DRAG_OFFSET_DELTA_MAX) {
+            newOffset = currentOffset + (Math.abs(newOffset - currentOffset) / (newOffset - currentOffset)) * DRAG_OFFSET_DELTA_MAX;
+        }
         double prevOffset = orientation.getOffset(dragStartPos);
         long currentTime = new Date().getTime();
         if ( (! ( Math.abs(prevOffset - newOffset) < dragTreshold() && (( currentTime - dragEndTime ) >
@@ -115,6 +121,7 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
             updateDraggableCopmonentsWithWraper(newOffset, that, orientation);
             if ( currentTime - this.dragStartTime > 300 ) {
                 this.dragStartTime = currentTime;
+                dragStartPos = PointFactory.newInstance(this.getDraggableComponent().getPosition());
             }
         }
     }
@@ -127,6 +134,13 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         return dragEndEdge(orientation);
     }
 
+    protected void moveAndUpdateDraggableCopmonents(double newOffset, TouchEvent touchEvent,
+                                                    ScrollOrientation orientation) {
+        updateDraggableCopmonents(newOffset, touchEvent, orientation);
+        this.getDraggableComponent().getHeight();//magic
+        this.getDraggableComponent().getWidth();//magic
+    }
+
     protected void updateDraggableCopmonentsWithWraper(double newOffset, TouchEvent touchEvent,
                                                      ScrollOrientation orientation) {
         double startEdge = calcStartEdge(orientation);
@@ -137,7 +151,7 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         if (newOffset < startEdge) {
             newOffset = startEdge;
         }
-        updateDraggableCopmonents(newOffset, touchEvent, orientation);
+        moveAndUpdateDraggableCopmonents(newOffset, touchEvent, orientation);
     }
 
     public void touchMove(MouseEvent data, TouchEvent that) {

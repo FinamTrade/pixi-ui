@@ -1,16 +1,23 @@
 package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
+import com.google.gwt.user.client.Timer;
 import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
+import ru.finam.canvasui.client.js.gsap.easing.Ease;
+import ru.finam.canvasui.client.js.gsap.easing.Power0;
+import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.MouseEvent;
 import ru.finam.canvasui.client.js.pixi.Point;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
+import ru.finam.canvasui.client.tests.DecreasingTableTest;
 
+import java.sql.Time;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by ikusch on 05.09.2014.
@@ -21,9 +28,24 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
     private static final double FLICK_WRAPPER_K = 3;
     private static final double WRAPPER_RETURN_ANIMATION_DURATION = 1;
     private static final double ANIMATION_DURATION_MAX = 3;
+    private static final long DRAG_MAX_DURATION_TRESHOLD = 300;
+    private static final double DELTA_OFFSET_TRESHOLD = 40;
+    /**
+     * To aviod high amplitude jittering
+     */
+    private static final int DRAG_MAX_ALLOWED = 200;
+    /**
+     * To aviod high amplitude jittering
+     */
+    private static final double MAX_ALLOWED_SPEED = 2.9;
+    /**
+     * To aviod high amplitude jittering
+     */
+    private static final long DRAG_MIN_DURATION_TRESHOLD = 50;
 
     private TimelineLite flickTimeline;
     private Point tPositionHolder = PointFactory.newInstance(0, 0);
+    private Ease ease = Quint.Static.easeOut();
 
     private class FlickCalcResult {
 
@@ -47,14 +69,35 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         private Point pointVal2;
     }
 
+    protected HasKinematicDraggableComponent(DisplayObjectContainer mainComponent, Ease ease) {
+        this(mainComponent);
+        this.ease = ease;
+    }
+
     protected HasKinematicDraggableComponent(DisplayObjectContainer mainComponent) {
         super(mainComponent);
         flickTimeline().eventCallback("onUpdate", onRepeat(this), null, null);
+        flickTimeline().eventCallback("onComplete", flickComplete(this), null, null);
     }
 
     protected void dragStarted(ScrollOrientation orientation, double newOffset, double prevOffset) {
-        flickTimeline().kill(null, tPositionHolder);
+        killFlickAnimation();
         super.dragStarted(orientation, newOffset, prevOffset);
+    }
+
+    @Override
+    protected void touchStarted() {
+        killFlickAnimation();
+    }
+
+    public void killFlickAnimation() {
+        flickTimeline().kill(null, tPositionHolder);
+        for (ScrollOrientation orientation : ScrollOrientation.values()) {
+            moveAndUpdateDraggableCopmonents(orientation.getOffset(getDraggableComponent().getPosition()), null, orientation);
+        }
+    }
+
+    public void onFlickComplete() {
     }
 
     private final native JsObject onRepeat(HasDraggableComponent inst) /*-{
@@ -63,9 +106,15 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         };
     }-*/;
 
+    private final native JsObject flickComplete(HasDraggableComponent inst) /*-{
+        return function() {
+            inst.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasKinematicDraggableComponent::onFlickComplete()();
+        };
+    }-*/;
+
     private void flickframe() {
-        updateDraggableCopmonentsWithWraper(tPositionHolder.getY() * scrollMaxOffset[ScrollOrientation.VERTICAL.ordinal()], null, ScrollOrientation.VERTICAL);
-        updateDraggableCopmonentsWithWraper(tPositionHolder.getX() * scrollMaxOffset[ScrollOrientation.HORIZONTAL.ordinal()], null, ScrollOrientation.HORIZONTAL);
+        updateDraggableCopmonentsWithWraper(tPositionHolder.getY(), null, ScrollOrientation.VERTICAL);
+        updateDraggableCopmonentsWithWraper(tPositionHolder.getX(), null, ScrollOrientation.HORIZONTAL);
     }
 
     protected void updateDraggableCopmonentsWithWraper(double newOffset, TouchEvent touchEvent,
@@ -100,6 +149,9 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         double speed = Math.abs(distance) / time;
         double destination = 0;
         double duration = 0;
+        if (speed > MAX_ALLOWED_SPEED) {
+            speed = MAX_ALLOWED_SPEED;
+        }
 
         if (deceleration == null)
             deceleration = 0.0006;
@@ -185,49 +237,85 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         return new FlickDesinationPoints(destinationPoint1, destinationPoint2, totalDuration);
     }
 
-    private void startFlick() {
-        long dragDuration = new Date().getTime() - this.dragStartTime;
-
-        Point releasePoint = getDraggableComponent().getPosition();
-        double releaseY = releasePoint.getY();
-        double releaseX = releasePoint.getX();
-        double hK = 0;
-        if (scrollMaxOffset[ScrollOrientation.HORIZONTAL.ordinal()] != 0) {
-            hK = 1 / scrollMaxOffset[ScrollOrientation.HORIZONTAL.ordinal()];
-        }
-        double vK = 0;
-        if (scrollMaxOffset[ScrollOrientation.VERTICAL.ordinal()] != 0) {
-            vK = 1 / scrollMaxOffset[ScrollOrientation.VERTICAL.ordinal()];
-        }
-        tPositionHolder.setX(releaseX * hK);
-        tPositionHolder.setY(releaseY * vK);
-
+    private void startFlick(Point releasePoint, long dragDuration) {
         FlickDesinationPoints flickDesinationPoints = flickDesinationPoints(releasePoint, dragDuration);
         double totalDuration = flickDesinationPoints.duration;
         Point flickDestination1 = flickDesinationPoints.pointVal1;
         Point flickDestination2 = flickDesinationPoints.pointVal2;
 
         flickTimeline().paused(true);
-        flickTimeline().kill(null, tPositionHolder);
+        killFlickAnimation();
         flickTimeline().delay(0);
         flickTimeline().paused(false);
         flickTimeline().to(tPositionHolder, totalDuration,
-                new PropertiesSet().addKeyValue("x", flickDestination1.getX() * hK)
-                        .addKeyValue("y", flickDestination1.getY() * vK).getJsObject(),
+                new PropertiesSet().addKeyValue("x", flickDestination1.getX())
+                        .addKeyValue("y", flickDestination1.getY())
+                        .addKeyValue("ease", this.ease)
+                        .getJsObject(),
                 null);
 
         if (!(flickDestination1.getX() == flickDestination2.getX() && flickDestination1.getY() == flickDestination2.getY())) {
             flickTimeline().to(tPositionHolder, WRAPPER_RETURN_ANIMATION_DURATION,
-                    new PropertiesSet().addKeyValue("y", flickDestination2.getY() * vK)
-                            .addKeyValue("x", flickDestination2.getX() * hK).getJsObject(),
+                    new PropertiesSet().addKeyValue("y", flickDestination2.getY())
+                            .addKeyValue("x", flickDestination2.getX())
+                            .addKeyValue("ease", this.ease)
+                            .getJsObject(),
                     null);
+        }
+    }
+
+    private void calcAndStartFlick() {
+        long dragDuration = this.dragEndTime - this.dragStartTime;
+
+        Point releasePoint = getDraggableComponent().getPosition();
+        double releaseY = releasePoint.getY();
+        double releaseX = releasePoint.getX();
+        tPositionHolder.setX(releaseX);
+        tPositionHolder.setY(releaseY);
+
+        double dY = (releaseY - dragStartPos.getY());
+        double dX = (releaseX - dragStartPos.getX());
+        if (Math.abs(dX) > DRAG_MAX_ALLOWED) {
+            dX = ( dX / Math.abs(dX) ) * DRAG_MAX_ALLOWED;
+        }
+        if (Math.abs(dY) > DRAG_MAX_ALLOWED) {
+            dY = ( dY / Math.abs(dY) ) * DRAG_MAX_ALLOWED;
+        }
+
+        if (
+                (
+                        (dragDuration < DRAG_MAX_DURATION_TRESHOLD) &&
+                        (dragDuration > DRAG_MIN_DURATION_TRESHOLD) &&
+                        ((Math.abs(dX) > DELTA_OFFSET_TRESHOLD ) || (Math.abs(dY) > DELTA_OFFSET_TRESHOLD))
+                )
+                || outOfBounds(releasePoint)
+            ) {
+            startFlick(releasePoint, dragDuration);
         }
 
     }
 
-    public void touchEnd(MouseEvent data, TouchEvent that) {
-        super.touchEnd(data, that);
-        startFlick();
+    private boolean outOfBounds(Point releasePoint) {
+        boolean b = false;
+        for (ScrollOrientation orientation : ScrollOrientation.values()) {
+
+            b = b || (orientation.getOffset(releasePoint) > dragEndEdge(orientation)) ||
+            (orientation.getOffset(releasePoint) < startEdge(orientation));
+
+        }
+        return b;
     }
 
+    public void touchEnd(MouseEvent data, TouchEvent that) {
+        super.touchEnd(data, that);
+        calcAndStartFlick();
+    }
+
+    public Ease getEase() {
+        return ease;
+    }
+
+    public void setEase(Ease ease) {
+        this.ease = ease;
+    }
 }

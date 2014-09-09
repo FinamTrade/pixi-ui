@@ -12,17 +12,14 @@ import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
  */
 public class BorderedImageTest extends PixiScrollerTest {
 
+    public static final String NAME = "Bordered Image Test";
+
     private static final int BG_COLOR = 0xFFFFFF;
 
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[5])));
         stage.addChildToCenter(scrollPanel, width, height);
-        return stage;
-    }
-
-    public String name() {
-        return "Bordered Image Test";
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

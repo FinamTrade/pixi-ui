@@ -31,7 +31,7 @@ public interface Strong extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Strong.easeIn;
+            return $wnd.Strong.easeIn;
         }-*/;
 
         /**
@@ -41,7 +41,7 @@ public interface Strong extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Strong.easeInOut;
+            return $wnd.Strong.easeInOut;
         }-*/;
 
         /**
@@ -51,7 +51,7 @@ public interface Strong extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Strong.easeOut;
+            return $wnd.Strong.easeOut;
         }-*/;
 
     }

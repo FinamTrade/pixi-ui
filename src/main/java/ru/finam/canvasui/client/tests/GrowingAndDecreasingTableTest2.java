@@ -12,6 +12,8 @@ import ru.finam.canvasui.client.js.pixi.custom.table.RandomValuesTable;
  */
 public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
 
+    public static final String NAME = "Growing And Decreasing Table 2";
+
     int i = 0;
     int MAX = 5;
     int MIN = 1;
@@ -36,8 +38,8 @@ public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
     }
 
     @Override
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
         i = 0;
         if (timer != null)
             timer.cancel();
@@ -50,12 +52,6 @@ public class GrowingAndDecreasingTableTest2 extends PixiScrollerTest {
         timer.scheduleRepeating(2000);
         randomValuesTable = new RandomValuesTable(5, 3);
         stage.addChildToCenter(fixedSizeScrollPanel1(randomValuesTable), width, height);
-        return stage;
-    }
-
-    @Override
-    public String name() {
-        return "Growing And Decreasing Table 2";
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

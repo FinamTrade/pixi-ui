@@ -30,7 +30,7 @@ public interface Quint extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Quint.easeIn;
+            return $wnd.Quint.easeIn;
         }-*/;
 
         /**
@@ -40,7 +40,7 @@ public interface Quint extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Quint.easeInOut;
+            return $wnd.Quint.easeInOut;
         }-*/;
 
         /**
@@ -50,7 +50,7 @@ public interface Quint extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Quint.easeOut;
+            return $wnd.Quint.easeOut;
         }-*/;
 
     }

@@ -30,7 +30,7 @@ public interface Power4 extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Power4.easeIn;
+            return $wnd.Power4.easeIn;
         }-*/;
 
         /**
@@ -40,7 +40,7 @@ public interface Power4 extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Power4.easeInOut;
+            return $wnd.Power4.easeInOut;
         }-*/;
 
         /**
@@ -50,7 +50,7 @@ public interface Power4 extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Power4.easeOut;
+            return $wnd.Power4.easeOut;
         }-*/;
 
     }

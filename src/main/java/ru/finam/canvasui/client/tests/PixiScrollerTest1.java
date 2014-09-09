@@ -18,6 +18,7 @@ import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 public class PixiScrollerTest1 extends PixiScrollerTest {
 
     private static final int BG_COLOR = 0xFFFFFF;
+    public static final String NAME = "Test1";
 
     private static DisplayObjectContainer newSampleContainerWithGraphics() {
         DisplayObjectContainer sampleContainer = DisplayObjectContainer.Factory.newInstance();
@@ -30,15 +31,10 @@ public class PixiScrollerTest1 extends PixiScrollerTest {
         return sampleContainer;
     }
 
-    public LayoutedStage newTestStage(int width, int height, String... images) {
-        LayoutedStage stage = new LayoutedStage(BG_COLOR, true);
+    public void fillStage(int width, int height, String... images) {
+        stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
         stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
-        return stage;
-    }
-
-    public String name() {
-        return "Test1";
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

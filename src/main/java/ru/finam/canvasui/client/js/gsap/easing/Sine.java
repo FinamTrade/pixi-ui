@@ -23,7 +23,7 @@ public interface Sine extends JsObject {
          *
          */
         public static final native Ease easeIn() /*-{
-            return $wnd.easing.Sine.easeIn;
+            return $wnd.Sine.easeIn;
         }-*/;
 
         /**
@@ -33,7 +33,7 @@ public interface Sine extends JsObject {
          *
          */
         public static final native Ease easeInOut() /*-{
-            return $wnd.easing.Sine.easeInOut;
+            return $wnd.Sine.easeInOut;
         }-*/;
 
         /**
@@ -43,7 +43,7 @@ public interface Sine extends JsObject {
          *
          */
         public static final native Ease easeOut () /*-{
-            return $wnd.easing.Sine.easeOut;
+            return $wnd.Sine.easeOut;
         }-*/;
 
     }

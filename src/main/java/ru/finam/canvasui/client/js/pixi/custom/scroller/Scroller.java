@@ -1,8 +1,11 @@
 package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
+import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
+import ru.finam.canvasui.client.js.gsap.easing.Ease;
+import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
 
@@ -36,6 +39,7 @@ public class Scroller extends HasDraggableComponent {
     private ScrollCallback scrollCallback;
     private Integer scrollerLength = null;
     private TimelineLite resizeTimeline;
+    private Ease resizeEase = Quint.Static.easeOut();
     private PropertiesSet tScrollerLengthHolder;
 
     public double getScrollPosition() {
@@ -55,25 +59,28 @@ public class Scroller extends HasDraggableComponent {
         addGraphics();
     }
 
+    protected Scroller(double k,
+                       double scrollPosition,
+                       ScrollCallback scrollCallback, ScrollOrientation orientation, double length, Ease resizeEase) {
+        this(k, scrollPosition, scrollCallback, orientation, length);
+        this.resizeEase = resizeEase;
+    }
+
     public void doScrollCallback(double d) {
         scrollCallback.onScroll(d, this.orientation);
     }
 
-    private static Scroller newInstance(double length, double k, ScrollCallback scrollCallback,
-                                        ScrollOrientation orientation) {
-        return newInstance(length, k, 0, scrollCallback, orientation);
-    }
-
-    private static Scroller newInstance(double length, double k,
-                                        double scrollPosition, ScrollCallback scrollCallback,
-                                        ScrollOrientation orientation) {
-        return new Scroller(k, scrollPosition, scrollCallback, orientation, length);
-    }
-
-    public static Scroller newInstance(double width, double k, ScrollCallback scrollCallback,
+    public static Scroller newInstance(double length, double k, ScrollCallback scrollCallback,
                                                  double initAlpha, ScrollOrientation orientation) {
-        Scroller scroller = newInstance(width, k, 0, scrollCallback, orientation);
+        Scroller scroller = new Scroller(k, 0, scrollCallback, orientation, length);
         scroller.setAlpha(initAlpha);
+        return scroller;
+    }
+
+    public static Scroller newInstance(double length, double k, ScrollCallback scrollCallback,
+                                       double initAlpha, ScrollOrientation orientation, Ease resizeEase) {
+        Scroller scroller = newInstance(length, k, scrollCallback, initAlpha, orientation);
+        scroller.resizeEase = resizeEase;
         return scroller;
     }
 
@@ -82,7 +89,7 @@ public class Scroller extends HasDraggableComponent {
     }
 
     @Override
-    protected DisplayObject getDraggableComponent() {
+    protected DisplayObjectContainer getDraggableComponent() {
         return this.scrollerMiddle;
     }
 
@@ -103,9 +110,15 @@ public class Scroller extends HasDraggableComponent {
                 ) {
             resizeTimeline().to(this.tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION,
                     new PropertiesSet().addKeyValue(SCROLLER_MIDDLE_OFFSET, scrollerMiddleOffset)
-                            .addKeyValue(SCROLLER_TAIL_OFFSET, scrollerEndOffset).getJsObject(), null);
+                            .addKeyValue(SCROLLER_TAIL_OFFSET, scrollerEndOffset)
+                            .addKeyValue("ease", resizeEase)
+                            .getJsObject(), null);
             resizeTimeline().paused(false);
         }
+    }
+
+    public void updateScrollPosK(boolean immediatly) {
+        updateScrollPosK(scrollPosition, immediatly);
     }
 
     public void updateScrollPosK(double scrollPos, boolean immediatly) {
@@ -290,9 +303,11 @@ public class Scroller extends HasDraggableComponent {
         resizeTimeline().duration(RESIZE_ANI_DURATION);
         resizeTimeline().totalDuration(RESIZE_ANI_DURATION);
         resizeTimeline().delay(0);
-        resizeTimeline().to(tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION, new PropertiesSet().addKeyValue(SCROLLER_MIDDLE_OFFSET,
-                newScrollBegin).addKeyValue(SCROLLER_TAIL_OFFSET,
-                newScrollerEnd).getJsObject(), null);
+        resizeTimeline().to(tScrollerLengthHolder.getJsObject(), RESIZE_ANI_DURATION, new PropertiesSet()
+                .addKeyValue(SCROLLER_MIDDLE_OFFSET, newScrollBegin)
+                .addKeyValue(SCROLLER_TAIL_OFFSET, newScrollerEnd)
+                .addKeyValue("ease", resizeEase)
+                .getJsObject(), null);
         resizeTimeline().paused(false);
     }
 
@@ -426,4 +441,11 @@ public class Scroller extends HasDraggableComponent {
         return this.scrollerContainer;
     }
 
+    public Ease getResizeEase() {
+        return resizeEase;
+    }
+
+    public void setResizeEase(Ease resizeEase) {
+        this.resizeEase = resizeEase;
+    }
 }

@@ -46,7 +46,7 @@ public interface RoughEase extends Ease {
          * compared to creating a new instance each time.
          */
         public static final native RoughEase ease() /*-{
-            return $wnd.easing.RoughEase.ease;
+            return $wnd.RoughEase.ease;
         }-*/;
 
     }
@@ -136,7 +136,7 @@ public interface RoughEase extends Ease {
          *
          */
         public static final native RoughEase construct(JsObject vars) /*-{
-            return new $wnd.easing.RoughEase(vars);
+            return new $wnd.RoughEase(vars);
         }-*/;
 
     }

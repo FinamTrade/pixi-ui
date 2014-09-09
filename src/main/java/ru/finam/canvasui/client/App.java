@@ -25,7 +25,7 @@ public class App implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-        Tests.load(RENDERER_CONTAINER_ID, MENU_CONTAINER_ID);
+        new Tests(RENDERER_CONTAINER_ID, MENU_CONTAINER_ID).load();
     }
 	
 }

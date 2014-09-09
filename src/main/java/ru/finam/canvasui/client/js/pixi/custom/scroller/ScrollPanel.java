@@ -2,6 +2,8 @@ package ru.finam.canvasui.client.js.pixi.custom.scroller;
 
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import ru.finam.canvasui.client.JsConsole;
+import ru.finam.canvasui.client.js.gsap.easing.Ease;
+import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
@@ -9,6 +11,9 @@ import ru.finam.canvasui.client.js.pixi.custom.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.channel.EventListener;
 import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by ikusch on 19.08.14.
@@ -33,6 +38,13 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         }
     };
     private Point dragStartPos;
+    private Set<Runnable> actionsWhenFlickComplete = new HashSet<>();
+
+    protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds,
+                          CustomComponentContainer innerPanel, boolean drawBorders, Ease ease) {
+        this(mainContainer, maskBounds, innerPanel, drawBorders);
+        setEase(ease);
+    }
 
     protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds, CustomComponentContainer innerPanel, boolean drawBorders) {
         super(mainContainer);
@@ -79,6 +91,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         innerPanel.touchmove = function(data)
         {
             theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            //console.log('innerPanel.height = ' + innerPanel.height);
         }
 
     }-*/;
@@ -143,7 +156,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }
 
     @Override
-    protected DisplayObject getDraggableComponent() {
+    protected DisplayObjectContainer getDraggableComponent() {
         return this.innerPanel.getMainComponent();
     }
 
@@ -169,9 +182,31 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         }
     }
 
+    private Runnable onInnerPanelUpdateAction() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                onInnerPanelUpdate();
+            }
+        };
+    }
+
     private void onInnerPanelUpdate() {
-        updateScrollers();
-        setTouchEvents();
+        if (!flickTimeline().isActive()) {
+            updateScrollers();
+            setTouchEvents();
+        }
+        else {
+            actionsWhenFlickComplete.add(onInnerPanelUpdateAction());
+        }
+    }
+
+    @Override
+    public void onFlickComplete() {
+        for (Runnable task : actionsWhenFlickComplete) {
+            task.run();
+            actionsWhenFlickComplete.remove(task);
+        }
     }
 
     private void mouseWheelReaction(double deltaY) {
@@ -183,8 +218,15 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         if (newY < scrollMaxY)
             newY = scrollMaxY;
         double k = newY / scrollMaxY;
-        scrollToIfScrollable(k, ScrollOrientation.VERTICAL);
-        this.scrollers[VERTICAL_I].updateScrollPosK(k, true);
+        if (this.scrollers[VERTICAL_I] != null) {
+            scrollToIfScrollable(k, ScrollOrientation.VERTICAL);
+            this.scrollers[VERTICAL_I].updateScrollPosK(k, true);
+        }
+        if (this.scrollers[HORIZONTAL_I] != null) {
+            this.scrollers[HORIZONTAL_I].updateScrollPosK(true);
+            double k2 = this.scrollers[HORIZONTAL_I].getScrollPosition();
+            scrollToIfScrollable(k2, ScrollOrientation.HORIZONTAL);
+        }
     }
 
     private void onMouseWheelEvent(MouseWheelEvent event) {
@@ -209,7 +251,8 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }-*/;
 
     public void doScrollTo(double newPos, ScrollOrientation orientation) {
-        orientation.setOffset(this.getInnerPanel().getPosition(), scrollMaxOffset[orientation.ordinal()] * newPos);
+        //orientation.setOffset(this.getInnerPanel().getPosition(), scrollMaxOffset[orientation.ordinal()] * newPos);
+        moveAndUpdateDraggableCopmonents(scrollMaxOffset[orientation.ordinal()] * newPos, null, orientation);
     }
 
     public void doScrollTo(ScrollOrientation orientation) {
@@ -217,8 +260,15 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }
 
     public void scrollToIfScrollable(double newPos, ScrollOrientation orientation) {
-        if (this.scrollers[orientation.ordinal()] != null)
+        if (this.scrollers[orientation.ordinal()] != null) {
+            if (flickTimeline().isActive()) {
+                killFlickAnimation();
+                innerPanel.getHeight();
+                innerPanel.getWidth();
+            }
+            onFlickComplete();
             doScrollTo(newPos, orientation);
+        }
     }
 
     private double innerPanelScrolledOffsetK(ScrollOrientation orientation) {
@@ -230,11 +280,16 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }
 
     public static ScrollPanel newInstance(CustomComponentContainer innerPanel, boolean drawBorders) {
-        return newInstance(innerPanel, innerPanel.getBounds(), drawBorders);
+        return newInstance(innerPanel, innerPanel.getBounds(), drawBorders, Quint.Static.easeOut());
+    }
+
+    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, Rectangle maskBounds,
+                                          boolean drawBorders, Ease ease) {
+        return new ScrollPanel(DisplayObjectContainer.Factory.newInstance(), maskBounds, innerPanel, drawBorders, ease);
     }
 
     public static ScrollPanel newInstance(CustomComponentContainer innerPanel, Rectangle maskBounds, boolean drawBorders) {
-        return new ScrollPanel(DisplayObjectContainer.Factory.newInstance(), maskBounds, innerPanel, drawBorders);
+        return newInstance(innerPanel, maskBounds, drawBorders, Quint.Static.easeOut());
     }
 
     private static void setMouseOverEvents(ScrollPanel scrollPanel) {
@@ -262,7 +317,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
 
     private void newScroller(double k, ScrollOrientation orientation) {
         scrollers[orientation.ordinal()] = Scroller.newInstance(orientation.getLength(this.maskBounds), k,
-                this.scrollTo, 0, orientation);
+                this.scrollTo, 0, orientation, getEase());
         addChild(scrollers[orientation.ordinal()].getMainComponent());
         double offset = orientation.getOrtogonalLength(this.maskBounds) - Scroller.DEFAULT_WIDE * 2;
         scrollers[orientation.ordinal()].setPosition(orientation.newPoint(0, offset));
@@ -270,6 +325,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
 
     private void updateScrollers() {
         for (ScrollOrientation orientation : ScrollOrientation.values()) {
+
             double length1 = orientation.getBoundedLength(getInnerPanel());
             if (orientation.equals(ScrollOrientation.VERTICAL))
                 length1 += 1;
@@ -327,10 +383,16 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         addChild(graphics);
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height, boolean drawBorders) {
+    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height,
+                                          boolean drawBorders, Ease ease) {
         ScrollPanel scrollPanel = newInstance(innerPanel, Rectangle.Factory.newInstance(0, 0, width, height + 1),
-                drawBorders);
+                drawBorders, ease);
         return scrollPanel;
+    }
+
+    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height,
+                                          boolean drawBorders) {
+        return newInstance(innerPanel, width, height, drawBorders, Quint.Static.easeOut());
     }
 
     public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height) {
