@@ -1,13 +1,11 @@
 package ru.finam.canvasui.client.tests;
 
 import ru.finam.canvasui.client.js.JsObject;
-import ru.finam.canvasui.client.js.gsap.Animation;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
 import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
 import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
 
@@ -20,7 +18,6 @@ public class TimelineTest1 extends PixiScrollerTest {
 
     @Override
     public void fillStage(int width, int height, String... images) {
-
 
         stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));

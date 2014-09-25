@@ -1,12 +1,18 @@
-apply plugin: 'war'
-apply plugin: 'cargo'
-apply plugin: 'jetty'
-apply plugin: 'gwt'
-apply plugin: 'idea'
+/**
+ * To upload widgets library to repository type command:
+ *
+ * gradle uploadArchives
+ *
+ */
+apply plugin: 'java'
+apply plugin: 'gwt-base'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 repositories {
     maven {
-        url 'https://oss.sonatype.org/content/groups/google/'
+        //url 'https://oss.sonatype.org/content/groups/google/'
+        url 'http://msk-projects2:81/artifactory/repo'
     }
     mavenCentral()
 }
@@ -24,15 +30,9 @@ buildscript {
     }
 }
 
-dependencies {
-    def cargoVersion = '1.4.4'
-    cargo "org.codehaus.cargo:cargo-core-uberjar:$cargoVersion",
-            "org.codehaus.cargo:cargo-ant:$cargoVersion"
-}
-
 gwt {
 
-    gwtVersion='2.7.0-SNAPSHOT'
+    gwtVersion='2.7.0.4'
 
     modules 'ru.finam.canvasui.app'
     devModules 'ru.finam.canvasui.appDev'
@@ -42,25 +42,32 @@ gwt {
 
 }
 
-cargo {
-    containerId = 'jetty9x'
-    port = 8080
+task srcs(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from project.sourceSets.main.allSource
+}
 
-    deployable {
-        file = tasks.draftWar.archivePath
-        context = 'app'
+task pluginJar(type: Jar){
+    from sourceSets.main.output
+}
+
+
+uploadArchives {
+    dependsOn pluginJar
+    artifacts {
+        archives srcs
     }
-}
-
-task jettyDraftWar(type: JettyRunWar) {
-    dependsOn draftWar
-    dependsOn.remove('war')
-    webApp=draftWar.archivePath
-    httpPort = 8888
-    contextPath = 'app'
-}
-
-afterEvaluate {
-    tasks.cargoStartLocal.dependsOn(tasks.draftWar)
-    tasks.cargoRunLocal.dependsOn(tasks.draftWar)
+    repositories {
+        mavenDeployer {
+            pom.version = '1.0.8'
+            pom.artifactId = 'pixi-ui'
+            pom.groupId = 'ru.finam'
+            repository(url:
+                    pom.version.endsWith('-SNAPSHOT') ?
+                  'http://msk-projects2:81/artifactory/libs-snapshot-local' :
+                'http://msk-projects2:81/artifactory/libs-release-local'
+                )
+            //repository(url: "file:build/libs")
+        }
+    }
 }
