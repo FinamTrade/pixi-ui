@@ -27,6 +27,8 @@ public interface Graphics extends DisplayObjectContainer {
 
     void moveTo(double x, double y);
 
+    void clear();
+
     /**
      *
      * Useful function that returns a texture of the graphics object that can then be used to create

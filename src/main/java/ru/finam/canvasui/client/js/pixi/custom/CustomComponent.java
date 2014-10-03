@@ -107,6 +107,10 @@ public class CustomComponent<T extends DisplayObject> {
         getMainComponent().setInteractive(b);
     }
 
+    public void setButtonMode(boolean b) {
+        getMainComponent().setButtonMode(b);
+    }
+
     public boolean getInteractive() {
         return getMainComponent().getInteractive();
     }
@@ -114,4 +118,5 @@ public class CustomComponent<T extends DisplayObject> {
     public Rectangle croppedBounds() {
         return Rectangle.Factory.newInstance(0, 0, (int) getBoundedWidth(), (int) getBoundedHeight());
     }
+
 }

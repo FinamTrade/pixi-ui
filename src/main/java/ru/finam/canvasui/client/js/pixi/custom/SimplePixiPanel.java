@@ -7,11 +7,12 @@ import ru.finam.canvasui.client.js.pixi.DisplayObject;
  */
 public class SimplePixiPanel extends CustomComponentContainer {
 
+    public SimplePixiPanel() {
+    }
+
     public SimplePixiPanel(DisplayObject content) {
         super();
         addChild(content);
-        //setWidth(getBoundedWidth(content));
-        //setHeight(getBoundedHeight(content));
     }
 
 }

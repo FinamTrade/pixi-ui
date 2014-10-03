@@ -38,4 +38,10 @@ public interface DisplayObjectContainer extends DisplayObject {
     @JsProperty(value = "height")
     void setHeight(double height);
 
+    @JsProperty(value = "visible")
+    void setVisible(boolean visible);
+
+    @JsProperty(value = "visible")
+    boolean getVisible();
+
 }

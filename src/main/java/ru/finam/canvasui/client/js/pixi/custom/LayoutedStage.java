@@ -15,21 +15,12 @@ import java.util.Set;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class LayoutedStage {
+public class LayoutedStage extends BaseCustomComponentContainer<Stage> {
 
     private Set<JsObject> updateFunctions;
-    private Stage stage;
 
     protected LayoutedStage(Stage stage) {
-        setStage(stage);
-    }
-
-    private void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    public Stage getStage() {
-        return this.stage;
+        super(stage);
     }
 
     protected LayoutedStage() {
@@ -44,8 +35,12 @@ public class LayoutedStage {
         addChildToCenter(child.getMainComponent(), width, height);
     }
 
+    public void addChild(CustomComponent customComponent) {
+        addChild(customComponent.getMainComponent());
+    }
+
     public final void addChildToCenter(DisplayObject child, int width, int height) {
-        stage.addChild(child);
+        getMainComponent().addChild(child);
         setWidth(width);
         setHeight(height);
         int newX = (int) (getWidth() / 2);
@@ -69,10 +64,6 @@ public class LayoutedStage {
         }
     }
 
-    private static final native <T extends JsObject> T getArrayEl(Array<T> array, int i) /*-{
-        return array[i];
-    }-*/;
-
     public static void collectUpdateFunctionsRecursively(Set<JsObject> updateFunctions,
                                                          DisplayObjectContainer container) {
         Array<DisplayObject> childrens = container.getChildren();
@@ -86,21 +77,9 @@ public class LayoutedStage {
             }
     }
 
-    public void clear() {
-        Array<DisplayObject> childrens = getChildren();
-        for (int i = 0; i < childrens.getLength(); ++i) {
-            DisplayObject child = getArrayEl(childrens, i);
-            removeChild(child);
-        }
-    }
-
-    private void removeChild(DisplayObject child) {
-        stage.removeChild(child);
-    }
-
     public final Set<JsObject> collectUpdateFunctions() {
         updateFunctions = new HashSet<>();
-        Stage stage = getStage();
+        Stage stage = getMainComponent();
         collectUpdateFunctionsRecursively(updateFunctions, stage);
         return updateFunctions;
     }
@@ -122,7 +101,7 @@ public class LayoutedStage {
     }-*/;
 
     public void startAnimatedRendering(Renderer renderer) {
-        startAnimatedRendering(this, this.stage, renderer);
+        startAnimatedRendering(this, this.getMainComponent(), renderer);
     }
 
     private final native void startAnimatedRendering(LayoutedStage inst, Stage stage, Renderer renderer) /*-{
@@ -135,30 +114,30 @@ public class LayoutedStage {
     }-*/;
 
     public void addChild(DisplayObject child) {
-        stage.addChild(child);
+        getMainComponent().addChild(child);
     }
 
     public void setWidth(int width) {
-        stage.setWidth(width);
+        getMainComponent().setWidth(width);
     }
 
     public void setHeight(int height) {
-        stage.setHeight(height);
+        getMainComponent().setHeight(height);
     }
 
     public double getWidth() {
-        return stage.getWidth();
+        return getMainComponent().getWidth();
     }
 
     public double getHeight() {
-        return stage.getHeight();
+        return getMainComponent().getHeight();
     }
 
     public Rectangle getBounds() {
-        return stage.getBounds();
+        return getMainComponent().getBounds();
     }
 
     public Array<DisplayObject> getChildren() {
-        return stage.getChildren();
+        return getMainComponent().getChildren();
     }
 }
