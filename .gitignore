@@ -15,3 +15,7 @@ build/**
 **.iml
 *.gradle
 **.gradle
+run.bat
+gwt-maven-plugin/**
+etc/**
+repo/**
