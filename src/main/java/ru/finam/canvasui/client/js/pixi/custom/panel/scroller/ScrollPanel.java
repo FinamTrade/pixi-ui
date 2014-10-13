@@ -1,16 +1,18 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.gsap.easing.Ease;
 import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
-import ru.finam.canvasui.client.js.pixi.custom.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.channel.EventListener;
 import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
+import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.UpdatableComponent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.masked.HasMask;
+import ru.finam.canvasui.client.js.pixi.custom.panel.masked.MaskObject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +20,7 @@ import java.util.Set;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class ScrollPanel extends HasKinematicDraggableComponent {
+public class ScrollPanel extends HasKinematicDraggableComponent implements HasMask {
 
     private static final double DEF_WRAPPER_SIZE = 100;
     private static final int MOUSE_WHEEL_SCROLL_K = 3;
@@ -28,7 +30,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     private static final double DRAG_TRESHOLD = 8;
     private Scroller[] scrollers = new Scroller[ORIENTATIONS_LENGTH];
     private Rectangle maskBounds;
-    public Graphics maskObject;
+    public MaskObject maskObject;
     private boolean mouseOvered = false;
     private CustomComponentContainer innerPanel;
     private ScrollCallback scrollTo = new ScrollCallback() {
@@ -52,10 +54,10 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         this.maskBounds = maskBounds;
         addChild(innerPanel);
         this.maskObject = newMaskObject();
-        addChild(this.maskObject);
+        addChild(this.maskObject.mainComponent());
         innerPanel.setPosition(PointFactory.newInstance(0, 0));
-        this.maskObject.setPosition(PointFactory.newInstance(0, 0));
-        setMask(this.maskObject );
+        this.maskObject.mainComponent().setPosition(PointFactory.newInstance(0, 0));
+        setMask(this.maskObject.mainComponent());
         if (drawBorders)
             drawBorders(maskBounds);
         updateScrollers();
@@ -78,19 +80,19 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         innerPanel.mousedown =
         innerPanel.touchstart = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         innerPanel.mouseup = innerPanel.mouseupoutside =
         innerPanel.touchend = innerPanel.touchendoutside = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         innerPanel.mousemove =
         innerPanel.touchmove = function(data)
         {
-            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
             //console.log('innerPanel.height = ' + innerPanel.height);
         }
 
@@ -192,6 +194,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }
 
     private void onInnerPanelUpdate() {
+        GWT.log("onInnerPanelUpdate!");
         if (!flickTimeline().isActive()) {
             updateScrollers();
             setTouchEvents();
@@ -241,11 +244,11 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     private static native void setMouseOverEvents(ScrollPanel scrollPanel, DisplayObject displayObject) /*-{
 
         displayObject.mouseover = function(mouseData){
-            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::mouseOvered()();
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::mouseOvered()();
         }
 
         displayObject.mouseout = function(mouseData){
-            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel::mouseOuted()();
+            scrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::mouseOuted()();
         }
 
     }-*/;
@@ -324,15 +327,19 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
     }
 
     private void updateScrollers() {
+        GWT.log("updateScrollers!");
         for (ScrollOrientation orientation : ScrollOrientation.values()) {
 
             double length1 = orientation.getBoundedLength(getInnerPanel());
             if (orientation.equals(ScrollOrientation.VERTICAL))
                 length1 += 1;
             double length2 = orientation.getLength(this.maskBounds);
+            GWT.log("length1 = " + length1);
+            GWT.log("length2 = " + length2);
             double maxScrollOffset = 0;
             if (length1 > length2)
                 maxScrollOffset = -(length1 - length2);
+            GWT.log("maxScrollOffset = " + maxScrollOffset);
             scrollMaxOffset[orientation.ordinal()] = maxScrollOffset;
             double k = length2 / length1;
             if (k < 1) {
@@ -369,11 +376,8 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         return flickTimeline().isActive();
     }
 
-    private Graphics newMaskObject() {
-        Graphics mask = Graphics.Factory.newInstance();
-        mask.beginFill(0xFF0000, 1);
-        mask.drawRect(this.maskBounds.getX(), this.maskBounds.getY(), this.maskBounds.getWidth(), this.maskBounds.getHeight());
-        return mask;
+    private MaskObject newMaskObject() {
+        return new MaskObject(this.maskBounds.getX(), this.maskBounds.getY(), this.maskBounds.getWidth(), this.maskBounds.getHeight());
     }
 
     private void drawBorders(Rectangle bounds) {
@@ -422,4 +426,24 @@ public class ScrollPanel extends HasKinematicDraggableComponent {
         }
     }
 
+    @Override
+    public void updateMaskHeight(double height) {
+        maskBounds.setHeight(height);
+        this.maskObject.drawMask(maskObject.getMaskBounds().getX(), maskObject.getMaskBounds().getY(), maskObject.getMaskBounds().getWidth(), height);
+    }
+
+    @Override
+    public void updateMaskWidth(double width) {
+        this.maskObject.drawMask(maskObject.getMaskBounds().getX(), maskObject.getMaskBounds().getY(), width, maskObject.getMaskBounds().getHeight());
+    }
+
+    @Override
+    public void updateMaskX(double x) {
+        this.maskObject.drawMask(x, maskObject.getMaskBounds().getY(), maskObject.getMaskBounds().getWidth(), maskObject.getMaskBounds().getHeight());
+    }
+
+    @Override
+    public void updateMaskY(double y) {
+        this.maskObject.drawMask(maskObject.getMaskBounds().getX(), y, maskObject.getMaskBounds().getWidth(), maskObject.getMaskBounds().getHeight());
+    }
 }

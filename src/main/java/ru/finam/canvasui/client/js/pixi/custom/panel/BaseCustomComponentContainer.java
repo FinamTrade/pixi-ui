@@ -1,6 +1,5 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.panel;
 
-import com.google.gwt.core.client.js.JsProperty;
 import ru.finam.canvasui.client.js.Array;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;

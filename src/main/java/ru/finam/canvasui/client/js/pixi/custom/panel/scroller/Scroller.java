@@ -1,13 +1,12 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.gsap.easing.Ease;
 import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
+import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
 
 /**
  * Created by ikusch on 19.08.14.
@@ -279,7 +278,7 @@ public class Scroller extends HasDraggableComponent {
 
     private final native JsObject onRepeat(Scroller inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.scroller.Scroller::dUpdateScrollerSize()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.Scroller::dUpdateScrollerSize()();
         };
     }-*/;
 
@@ -379,7 +378,7 @@ public class Scroller extends HasDraggableComponent {
 
     private final native JsObject onRemoveAnimationComplete(Scroller inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.scroller.Scroller::onRemoveAnimationComplete()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.Scroller::onRemoveAnimationComplete()();
         };
     }-*/;
 

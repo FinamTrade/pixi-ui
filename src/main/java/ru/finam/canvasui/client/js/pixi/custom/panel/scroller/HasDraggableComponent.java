@@ -1,8 +1,8 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
 
 import java.util.Date;
 
@@ -49,20 +49,20 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         // use the mousedown and touchstart
         displayObject.mousedown = displayObject.touchstart = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasDraggableComponent::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         // set the events for when the mouse is released or a touch is released
         displayObject.mouseup = displayObject.mouseupoutside =
         displayObject.touchend = displayObject.touchendoutside = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasDraggableComponent::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         // set the callbacks for when the mouse or a touch moves
         displayObject.mousemove = displayObject.touchmove = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasDraggableComponent::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         }
     }-*/;
 

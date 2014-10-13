@@ -1,12 +1,10 @@
 package ru.finam.canvasui.client.tests;
 
 
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
-import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,7 +32,7 @@ public class PixiScrollerTest1 extends PixiScrollerTest {
     public void fillStage(int width, int height, String... images) {
         stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
-        stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
+        stage.addChildToCenter(scrollPanel, width, height);
     }
 
     private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {

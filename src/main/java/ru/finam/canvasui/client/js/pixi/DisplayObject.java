@@ -53,12 +53,6 @@ public interface DisplayObject extends JsObject {
     @JsProperty(value = "hitArea")
     Rectangle getHitArea();
 
-    @JsProperty(value = "updateFunction")
-    JsObject getUpdateFunction();
-
-    @JsProperty(value = "updateFunction")
-    void setUpdateFunction(JsObject func);
-
     void removeChild(DisplayObject displayObject);
 
 }

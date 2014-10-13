@@ -59,7 +59,7 @@ uploadArchives {
     }
     repositories {
         mavenDeployer {
-            pom.version = '1.0.16'
+            pom.version = '1.0.32'
             pom.artifactId = 'pixi-ui'
             pom.groupId = 'ru.finam'
             repository(url:

@@ -1,11 +1,8 @@
 package ru.finam.canvasui.client.tests;
 
-import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
-import ru.finam.canvasui.client.js.pixi.Graphics;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.LayoutedStage;
-import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
-import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 
 /**
  * Created by ikusch on 29.08.2014.

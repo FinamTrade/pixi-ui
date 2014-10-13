@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.panel;
 
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 
@@ -7,7 +7,7 @@ import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
  */
 public class CustomComponentContainer extends BaseCustomComponentContainer<DisplayObjectContainer> {
 
-    protected CustomComponentContainer(DisplayObjectContainer mainComponent) {
+    public CustomComponentContainer(DisplayObjectContainer mainComponent) {
         super(mainComponent);
     }
 

@@ -1,6 +1,4 @@
-package ru.finam.canvasui.client.js.pixi.custom.table;
-
-import ru.finam.canvasui.client.JsConsole;
+package ru.finam.canvasui.client.js.pixi.custom.panel.table;
 
 import java.util.ArrayList;
 import java.util.List;

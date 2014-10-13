@@ -1,23 +1,15 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
-import com.google.gwt.user.client.Timer;
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.gsap.easing.Ease;
-import ru.finam.canvasui.client.js.gsap.easing.Power0;
 import ru.finam.canvasui.client.js.gsap.easing.Quint;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.MouseEvent;
 import ru.finam.canvasui.client.js.pixi.Point;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
-import ru.finam.canvasui.client.js.pixi.custom.TouchEvent;
-import ru.finam.canvasui.client.tests.DecreasingTableTest;
-
-import java.sql.Time;
-import java.util.Date;
-import java.util.Map;
+import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
 
 /**
  * Created by ikusch on 05.09.2014.
@@ -29,7 +21,8 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
     private static final double WRAPPER_RETURN_ANIMATION_DURATION = 1;
     private static final double ANIMATION_DURATION_MAX = 3;
     private static final long DRAG_MAX_DURATION_TRESHOLD = 300;
-    private static final double DELTA_OFFSET_TRESHOLD = 40;
+    //private static final double DELTA_OFFSET_TRESHOLD = 40;
+    private static final double DELTA_OFFSET_TRESHOLD = 80;
     /**
      * To aviod high amplitude jittering
      */
@@ -102,13 +95,13 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
 
     private final native JsObject onRepeat(HasDraggableComponent inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasKinematicDraggableComponent::flickframe()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasKinematicDraggableComponent::flickframe()();
         };
     }-*/;
 
     private final native JsObject flickComplete(HasDraggableComponent inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.scroller.HasKinematicDraggableComponent::onFlickComplete()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasKinematicDraggableComponent::onFlickComplete()();
         };
     }-*/;
 
@@ -272,6 +265,9 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         double releaseX = releasePoint.getX();
         tPositionHolder.setX(releaseX);
         tPositionHolder.setY(releaseY);
+
+        if (dragStartPos == null)
+            return;
 
         double dY = (releaseY - dragStartPos.getY());
         double dX = (releaseX - dragStartPos.getX());

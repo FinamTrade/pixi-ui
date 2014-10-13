@@ -1,10 +1,10 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
 import ru.finam.canvasui.client.js.pixi.Point;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponent;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 
 /**
  * Created by ikusch on 02.09.2014.

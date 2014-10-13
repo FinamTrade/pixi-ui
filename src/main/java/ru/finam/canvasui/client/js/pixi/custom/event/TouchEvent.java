@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.event;
 
 import com.google.gwt.core.client.js.JsProperty;
 import com.google.gwt.core.client.js.JsType;

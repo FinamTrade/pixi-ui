@@ -1,23 +1,19 @@
 package ru.finam.canvasui.client.js.pixi.custom;
 
-import com.google.gwt.user.client.Window;
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.Array;
-import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
 import ru.finam.canvasui.client.js.pixi.Stage;
-import java.util.HashSet;
-import java.util.Set;
+import ru.finam.canvasui.client.js.pixi.custom.panel.BaseCustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 
 /**
  * Created by ikusch on 19.08.14.
  */
 public class LayoutedStage extends BaseCustomComponentContainer<Stage> {
-
-    private Set<JsObject> updateFunctions;
 
     protected LayoutedStage(Stage stage) {
         super(stage);
@@ -57,56 +53,12 @@ public class LayoutedStage extends BaseCustomComponentContainer<Stage> {
         child.setPosition(PointFactory.newInstance(newX, newY));
     }
 
-    private static void addChildUpdatableFunction(DisplayObject child, Set<JsObject> updateFunctions) {
-        JsObject updateFunc = child.getUpdateFunction();
-        if (updateFunc != null) {
-            updateFunctions.add(updateFunc);
-        }
-    }
-
-    public static void collectUpdateFunctionsRecursively(Set<JsObject> updateFunctions,
-                                                         DisplayObjectContainer container) {
-        Array<DisplayObject> childrens = container.getChildren();
-        if (childrens != null)
-            for (int i = 0; i < childrens.getLength(); ++i) {
-                DisplayObject child = getArrayEl(childrens, i);
-                addChildUpdatableFunction(child, updateFunctions);
-                if (child instanceof DisplayObjectContainer) {
-                    collectUpdateFunctionsRecursively(updateFunctions, (DisplayObjectContainer) child);
-                }
-            }
-    }
-
-    public final Set<JsObject> collectUpdateFunctions() {
-        updateFunctions = new HashSet<>();
-        Stage stage = getMainComponent();
-        collectUpdateFunctionsRecursively(updateFunctions, stage);
-        return updateFunctions;
-    }
-
-    private Set<JsObject> updateFunctions() {
-        if (updateFunctions == null)
-            collectUpdateFunctions();
-        return updateFunctions;
-    }
-
-    private void updateChildrens() {
-        for (JsObject updateFunction : updateFunctions()) {
-            doUpdateFunction(updateFunction);
-        }
-    }
-
-    private final native void doUpdateFunction(JsObject updateFunction) /*-{
-        updateFunction();
-    }-*/;
-
     public void startAnimatedRendering(Renderer renderer) {
         startAnimatedRendering(this, this.getMainComponent(), renderer);
     }
 
     private final native void startAnimatedRendering(LayoutedStage inst, Stage stage, Renderer renderer) /*-{
         $wnd.animate = function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.LayoutedStage::updateChildrens()();
             $wnd.requestAnimFrame($wnd.animate);
             renderer.render(stage);
         }

@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi.custom.scroller;
+package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
 /**
  * Created by ikusch on 21.08.14.

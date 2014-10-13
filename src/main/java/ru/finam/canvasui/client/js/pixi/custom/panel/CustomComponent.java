@@ -1,6 +1,5 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.panel;
 
-import com.google.gwt.core.client.js.JsProperty;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.*;
 
@@ -55,8 +54,16 @@ public class CustomComponent<T extends DisplayObject> {
         getMainComponent().setMask(mask);
     }
 
+    public Graphics getMask() {
+        return getMainComponent().getMask();
+    }
+
     public void setHitArea(Rectangle hitArea) {
         getMainComponent().setHitArea(hitArea);
+    }
+
+    public Rectangle getHitArea() {
+        return getMainComponent().getHitArea();
     }
 
     public void setPosition(Point position) {
@@ -109,6 +116,10 @@ public class CustomComponent<T extends DisplayObject> {
 
     public void setButtonMode(boolean b) {
         getMainComponent().setButtonMode(b);
+    }
+
+    public boolean getButtonMode() {
+        return false;
     }
 
     public boolean getInteractive() {

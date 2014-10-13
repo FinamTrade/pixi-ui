@@ -1,9 +1,8 @@
-package ru.finam.canvasui.client.js.pixi.custom.table;
+package ru.finam.canvasui.client.js.pixi.custom.panel.table;
 
-import ru.finam.canvasui.client.JsConsole;
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.UpdatableComponent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.channel.ComponentUpdateEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
 

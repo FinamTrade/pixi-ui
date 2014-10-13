@@ -1,4 +1,4 @@
-package ru.finam.canvasui.client.js.pixi.custom;
+package ru.finam.canvasui.client.js.pixi.custom.panel;
 
 import ru.finam.canvasui.client.js.pixi.custom.channel.ComponentUpdateEventChannel;
 

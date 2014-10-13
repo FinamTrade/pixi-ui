@@ -5,9 +5,9 @@ import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
-import ru.finam.canvasui.client.js.pixi.custom.CustomComponentContainer;
-import ru.finam.canvasui.client.js.pixi.custom.SimplePixiPanel;
-import ru.finam.canvasui.client.js.pixi.custom.scroller.ScrollPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 
 /**
  * Created by ikusch on 22.08.14.
@@ -21,7 +21,7 @@ public class TimelineTest1 extends PixiScrollerTest {
 
         stage.clear();
         ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
-        stage.addChildToCenter(scrollPanel.getMainComponent(), width, height);
+        stage.addChildToCenter(scrollPanel, width, height);
         DisplayObjectContainer d = newSampleImage(images[1]);
         stage.addChild(d);
         d.setWidth(200);

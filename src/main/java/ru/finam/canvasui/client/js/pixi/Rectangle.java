@@ -12,7 +12,7 @@ public interface Rectangle extends JsObject {
 
     public static class Factory {
 
-        public static final native Rectangle newInstance(double x, double y, int width, int height) /*-{
+        public static final native Rectangle newInstance(double x, double y, double width, double height) /*-{
             return new $wnd.PIXI.Rectangle(x, y, width, height);
         }-*/;
 
