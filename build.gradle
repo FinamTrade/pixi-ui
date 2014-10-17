@@ -1,0 +1,73 @@
+/**
+ * To upload widgets library to repository type command:
+ *
+ * gradle uploadArchives
+ *
+ */
+apply plugin: 'java'
+apply plugin: 'gwt-base'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+repositories {
+    maven {
+        //url 'https://oss.sonatype.org/content/groups/google/'
+        url 'http://msk-projects2:81/artifactory/repo'
+    }
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        maven {
+            url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/'
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
+        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:0.6.1'
+    }
+}
+
+gwt {
+
+    gwtVersion='2.7.0.14'
+
+    modules 'ru.finam.canvasui.app'
+    devModules 'ru.finam.canvasui.appDev'
+
+    superDev {
+    }
+
+}
+
+task srcs(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from project.sourceSets.main.allSource
+}
+
+task pluginJar(type: Jar){
+    from sourceSets.main.output
+}
+
+
+uploadArchives {
+    dependsOn pluginJar
+    artifacts {
+        archives srcs
+    }
+    repositories {
+        mavenDeployer {
+            pom.version = '1.0.84'
+            pom.artifactId = 'pixi-ui'
+            pom.groupId = 'ru.finam'
+            repository(url:
+                    pom.version.endsWith('-SNAPSHOT') ?
+                  'http://msk-projects2:81/artifactory/libs-snapshot-local' :
+                'http://msk-projects2:81/artifactory/libs-release-local'
+                )
+            //repository(url: "file:build/libs")
+        }
+    }
+}
