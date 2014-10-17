@@ -2,6 +2,7 @@ package ru.finam.canvasui.client.tests;
 
 import com.google.gwt.user.client.Timer;
 import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithShowSizes;
 import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.panel.table.RandomValuesTable;
 
@@ -53,10 +54,10 @@ public class GrowingAndDecreasingTableTest extends PixiScrollerTest {
         stage.addChildToCenter(fixedSizeScrollPanel1(randomValuesTable), width, height);
     }
 
-    private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
+    private static ScrollPanel fixedSizeScrollPanel1(ComponentWithShowSizes innerPanel) {
         //innerPanel.setWidth(innerPanel.getBoundedWidth() - 11);
-        int width = (int) innerPanel.getBoundedWidth();
-        int height = (int) innerPanel.getBoundedHeight();
+        int width = (int) innerPanel.showWidth();
+        int height = (int) innerPanel.showHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width - 11, height / 2);
         return scrollPanel;
     }

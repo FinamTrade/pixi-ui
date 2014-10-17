@@ -1,5 +1,6 @@
 package ru.finam.canvasui.client.js.pixi.custom.panel.masked;
 
+import com.google.gwt.core.client.GWT;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
 /**
@@ -7,24 +8,24 @@ import ru.finam.canvasui.client.js.pixi.Rectangle;
  */
 public class MaskObject {
 
-    private Rectangle maskBounds = Rectangle.Factory.newInstance(0, 0, 0, 0);
+    private Rectangle maskBounds;
     private Graphics graphics;
-
-    public MaskObject() {
-        graphics = Graphics.Factory.newInstance();
-    }
 
     public MaskObject(double visibleAreaX, double visibleAreaY, double visibleAreaWidth, double visibleAreaHeight) {
         this(Rectangle.Factory.newInstance(visibleAreaX, visibleAreaY, visibleAreaWidth, visibleAreaHeight));
     }
 
     public MaskObject(Rectangle bounds) {
-        this();
+        graphics = Graphics.Factory.newInstance();
+        maskBounds = Rectangle.Factory.newInstance(0, 0, 0, 0);
         drawMask(bounds);
     }
 
     public void drawMask(Rectangle bounds) {
-        this.maskBounds = bounds;
+        this.maskBounds.setX(bounds.getX());
+        this.maskBounds.setY(bounds.getY());
+        this.maskBounds.setWidth(bounds.getWidth());
+        this.maskBounds.setHeight(bounds.getHeight());
         mainComponent().clear();
         mainComponent().beginFill(1, 0);
         mainComponent().drawRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());

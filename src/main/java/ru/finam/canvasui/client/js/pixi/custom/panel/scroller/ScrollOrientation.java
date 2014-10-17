@@ -12,9 +12,10 @@ import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 public enum ScrollOrientation {
 
     HORIZONTAL {
+
         @Override
-        public double getLength(CustomComponentContainer d) {
-            return d.getWidth();
+        public double getLength(ComponentWithShowSizes d) {
+            return d.showWidth();
         }
 
         @Override
@@ -22,10 +23,12 @@ public enum ScrollOrientation {
             return d.getWidth();
         }
 
+        /*
         @Override
         public double getBoundedLength(CustomComponent d) {
             return d.getBoundedWidth();
         }
+        */
 
         @Override
         public void setOffset(Point position, double value) {
@@ -49,8 +52,8 @@ public enum ScrollOrientation {
 
     }, VERTICAL {
         @Override
-        public double getLength(CustomComponentContainer d) {
-            return d.getHeight();
+        public double getLength(ComponentWithShowSizes d) {
+            return d.showHeight();
         }
 
         @Override
@@ -58,10 +61,12 @@ public enum ScrollOrientation {
             return d.getHeight();
         }
 
+        /*
         @Override
         public double getBoundedLength(CustomComponent d) {
             return d.getBoundedHeight();
         }
+        */
 
         @Override
         public void setOffset(Point position, double value) {
@@ -85,11 +90,9 @@ public enum ScrollOrientation {
 
     };
 
-    public abstract double getLength(CustomComponentContainer d);
+    public abstract double getLength(ComponentWithShowSizes d);
 
     public abstract double getLength(Rectangle d);
-
-    public abstract double getBoundedLength(CustomComponent d);
 
     public abstract void setOffset(Point position, double value);
 

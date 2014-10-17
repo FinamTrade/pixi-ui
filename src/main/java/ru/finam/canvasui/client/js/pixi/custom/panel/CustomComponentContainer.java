@@ -3,16 +3,7 @@ package ru.finam.canvasui.client.js.pixi.custom.panel;
 import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 
 /**
- * Created by ikusch on 29.09.2014.
+ * Created by ikusch on 14.10.2014.
  */
-public class CustomComponentContainer extends BaseCustomComponentContainer<DisplayObjectContainer> {
-
-    public CustomComponentContainer(DisplayObjectContainer mainComponent) {
-        super(mainComponent);
-    }
-
-    protected CustomComponentContainer() {
-        this(DisplayObjectContainer.Factory.newInstance());
-    }
-
+public interface CustomComponentContainer extends BaseCustomComponentContainer<DisplayObjectContainer> {
 }

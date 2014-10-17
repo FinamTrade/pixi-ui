@@ -14,7 +14,7 @@ import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
 /**
  * Created by ikusch on 05.09.2014.
  */
-abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
+abstract class ComponentWithKinematicDraggable extends ComponentWithDraggable {
 
     private static final double FLICK_K = 1.1;
     private static final double FLICK_WRAPPER_K = 3;
@@ -62,12 +62,12 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
         private Point pointVal2;
     }
 
-    protected HasKinematicDraggableComponent(DisplayObjectContainer mainComponent, Ease ease) {
+    protected ComponentWithKinematicDraggable(DisplayObjectContainer mainComponent, Ease ease) {
         this(mainComponent);
         this.ease = ease;
     }
 
-    protected HasKinematicDraggableComponent(DisplayObjectContainer mainComponent) {
+    protected ComponentWithKinematicDraggable(DisplayObjectContainer mainComponent) {
         super(mainComponent);
         flickTimeline().eventCallback("onUpdate", onRepeat(this), null, null);
         flickTimeline().eventCallback("onComplete", flickComplete(this), null, null);
@@ -93,15 +93,15 @@ abstract class HasKinematicDraggableComponent extends HasDraggableComponent {
     public void onFlickComplete() {
     }
 
-    private final native JsObject onRepeat(HasDraggableComponent inst) /*-{
+    private final native JsObject onRepeat(ComponentWithDraggable inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasKinematicDraggableComponent::flickframe()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithKinematicDraggable::flickframe()();
         };
     }-*/;
 
-    private final native JsObject flickComplete(HasDraggableComponent inst) /*-{
+    private final native JsObject flickComplete(ComponentWithDraggable inst) /*-{
         return function() {
-            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasKinematicDraggableComponent::onFlickComplete()();
+            inst.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithKinematicDraggable::onFlickComplete()();
         };
     }-*/;
 

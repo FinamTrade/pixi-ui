@@ -1,6 +1,8 @@
 package ru.finam.canvasui.client.tests;
 
+import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithShowSizes;
 import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 import ru.finam.canvasui.client.js.pixi.custom.panel.table.RandomValuesTable;
 
@@ -19,9 +21,9 @@ public class BigTableTest2 extends PixiScrollerTest {
         stage.addChildToCenter(fixedSizeScrollPanel1(d), width, height);
     }
 
-    private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
+    private static ScrollPanel fixedSizeScrollPanel1(ComponentWithShowSizes<DisplayObjectContainer> innerPanel) {
         //innerPanel.setWidth(innerPanel.getBoundedWidth() - 11);
-        int width = (int) innerPanel.getBoundedWidth();
+        int width = (int) innerPanel.showWidth();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, width, 500);
         return scrollPanel;
     }

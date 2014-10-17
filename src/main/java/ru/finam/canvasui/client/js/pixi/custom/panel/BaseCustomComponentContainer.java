@@ -3,97 +3,48 @@ package ru.finam.canvasui.client.js.pixi.custom.panel;
 import ru.finam.canvasui.client.js.Array;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
-import ru.finam.canvasui.client.js.pixi.*;
+import ru.finam.canvasui.client.js.pixi.DisplayObject;
+import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 
 /**
- * Created by ikusch on 19.08.14.
+ * Created by ikusch on 14.10.2014.
  */
-public class BaseCustomComponentContainer<E extends DisplayObjectContainer> extends CustomComponent<E> {
+public interface BaseCustomComponentContainer<E extends DisplayObjectContainer> extends CustomComponent<E> {
 
-    public static final double DEFAULT_ANIMATION_STEP = 0.1;
-    private boolean dragging;
-    private TimelineLite timeline;
+    TimelineLite timeline();
 
-    protected BaseCustomComponentContainer(E mainComponent) {
-        super(mainComponent);
-    }
+    double getBoundedWidth();
 
-    public TimelineLite timeline() {
-        if (timeline == null)
-            timeline = TimelineLite.Factory.newInstance();
-        return timeline;
-    }
+    double getBoundedHeight();
 
-    public double getBoundedWidth() {
-        return getBounds() == null ? 0 : ( getBounds().getWidth() + 2 * getBounds().getX() );
-    }
+    double getWidth();
 
-    public double getBoundedHeight() {
-        return getBounds() == null ? 0 : ( getBounds().getHeight() + 2 * getBounds().getY() );
-    }
+    void setWidth(double width);
 
-    public double getWidth() {
-        return getMainComponent().getWidth();
-    }
+    void setHeight(double height);
 
-    public void setWidth(double width) {
-        getMainComponent().setWidth(width);
-    }
+    double getHeight();
 
-    public void setHeight(double height) {
-        getMainComponent().setHeight(height);
-    }
+    void addChild(DisplayObject child);
 
-    public double getHeight() {
-        return this.getMainComponent().getHeight();
-    }
+    void addChild(CustomComponent child);
 
-    public void addChild(DisplayObject child) {
-        getMainComponent().addChild(child);
-    }
+    void removeChild(BaseCustomComponentContainer customComponentContainer);
 
-    public void addChild(BaseCustomComponentContainer child) {
-        getMainComponent().addChild(child.getMainComponent());
-    }
+    DisplayObject getChildren(int i);
 
-    public void removeChild(DisplayObject displayObject) {
-        this.getMainComponent().removeChild(displayObject);
-    }
+    Array<DisplayObject> getChildren();
 
-    public void removeChild(BaseCustomComponentContainer customComponentContainer) {
-        this.getMainComponent().removeChild(customComponentContainer.getMainComponent());
-    }
+    void setChildren(Array<DisplayObject> children);
 
-    public DisplayObject getChildren(int i) {
-        return Array.Static.<DisplayObject>get(i, getChildren());
-    }
+    void removeChild(DisplayObject displayObject);
 
-    public Array<DisplayObject> getChildren() {
-        return getMainComponent().getChildren();
-    }
+    void removeChild(CustomComponentContainer customComponentContainer);
 
-    public void setChildren(Array<DisplayObject> children) {
-        getMainComponent().setChildren(children);
-    }
+    void clear();
 
-    public void clear() {
-        Array<DisplayObject> childrens = getChildren();
-        while (childrens.getLength() > 0) {
-            DisplayObject child = getArrayEl(childrens, 0);
-            getMainComponent().removeChild(child);
-        }
-    }
+    void setVisible(boolean visible);
 
-    protected static final native <T extends JsObject> T getArrayEl(Array<T> array, int i) /*-{
-        return array[i];
-    }-*/;
-
-    public void setVisible(boolean visible) {
-        getMainComponent().setVisible(visible);
-    }
-
-    public boolean getVisible() {
-        return getMainComponent().getVisible();
-    }
+    boolean getVisible();
 
 }

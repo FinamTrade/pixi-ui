@@ -6,7 +6,7 @@ import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 /**
  * Created by ikusch on 28.08.2014.
  */
-public class SimplePixiPanel extends CustomComponentContainer {
+public class SimplePixiPanel extends CustomComponentContainerImpl {
 
     public SimplePixiPanel() {
     }

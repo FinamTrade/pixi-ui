@@ -1,5 +1,6 @@
 package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
+import com.google.gwt.core.client.GWT;
 import ru.finam.canvasui.client.js.JsObject;
 import ru.finam.canvasui.client.js.gsap.PropertiesSet;
 import ru.finam.canvasui.client.js.gsap.TimelineLite;
@@ -11,7 +12,7 @@ import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class Scroller extends HasDraggableComponent {
+public class Scroller extends ComponentWithDraggable {
 
     private static final double DEF_WRAPPER_SIZE = 0;
     public static final int DEFAULT_WIDE = 3;
@@ -176,10 +177,6 @@ public class Scroller extends HasDraggableComponent {
         return DEFAULT_ALPHA;
     }
 
-    protected double getVisibleLength(ScrollOrientation orientation) {
-        return orientation.getBoundedLength(this);
-    }
-
     @Override
     protected double dragWrapperSize(ScrollOrientation orientation) {
         return DEF_WRAPPER_SIZE;
@@ -271,6 +268,7 @@ public class Scroller extends HasDraggableComponent {
     }
 
     public void updateK(double k, double newScrollPos) {
+        GWT.log("updateK! k = " + k);
         this.k = k;
         newScrollPos = newScrollPos > 1 ? newScrollPos = 1 : newScrollPos < 0 ? 0 : newScrollPos;
         updateScrollerSize(newScrollPos);
@@ -296,8 +294,11 @@ public class Scroller extends HasDraggableComponent {
     }
 
     private void animatedUpdateScrollerSize(double newScrollPos) {
+        GWT.log("animatedUpdateScrollerSize! newScrollPos = " + newScrollPos);
         double newScrollBegin = newScrollerMiddleCoord(newScrollPos);
         double newScrollerEnd = newScrollBegin + scrollerMiddleLength(scrollerLength());
+        GWT.log("animatedUpdateScrollerSize! newScrollBegin = " + newScrollBegin);
+        GWT.log("animatedUpdateScrollerSize! newScrollerEnd = " + newScrollerEnd);
         killResizeTimeline();
         resizeTimeline().duration(RESIZE_ANI_DURATION);
         resizeTimeline().totalDuration(RESIZE_ANI_DURATION);
@@ -321,6 +322,7 @@ public class Scroller extends HasDraggableComponent {
     }
 
     private void updateScrollerSize(double newScrollPos) {
+        GWT.log("updateScrollerSize! scrollerLength = " + scrollerLength);
         if (scrollerLength == null)
             updateScrollerSize(scrollerLength(), newScrollPos);
         else
@@ -328,7 +330,10 @@ public class Scroller extends HasDraggableComponent {
     }
 
     private void updateScrollerSizeOnly(int scrollerLength) {
+        GWT.log("updateScrollerSizeOnly!");
+        GWT.log("updateScrollerSizeOnly! scrollerLength = " + scrollerLength);
         this.scrollerLength = scrollerLength;
+        GWT.log("updateScrollerSizeOnly! " + scrollerMiddleHeight(orientation, scrollerMiddle));
         scrollerMiddle.setWidth(scrollerMiddleWidth(orientation, scrollerMiddle));
         scrollerMiddle.setHeight(scrollerMiddleHeight(orientation, scrollerMiddle));
         scrollerMiddle.setPosition(scrollerMiddlePosition(orientation));
@@ -339,6 +344,7 @@ public class Scroller extends HasDraggableComponent {
     }
 
     private void updateScrollerSize(int scrollerLength, double newScrollPos) {
+        GWT.log("updateScrollerSize! scrollerLength = " + scrollerLength);
         updateScrollerSizeOnly(scrollerLength);
         updateScrollPosK(newScrollPos, false);
     }
@@ -423,11 +429,17 @@ public class Scroller extends HasDraggableComponent {
     }
 
     private int scrollerLength(int newLength) {
-        return newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
+        int scrollerLength = newLength > MIN_LENGTH ? newLength : MIN_LENGTH;
+        GWT.log("scrollerLength = " + scrollerLength);
+        return scrollerLength;
     }
 
     private int scrollerLength() {
+        GWT.log("scrollerLength!");
         int newLength = (int) (this.fullLength * k);
+        GWT.log("fullLength = " + fullLength);
+        GWT.log("k = " + k);
+        GWT.log("newLength = " + newLength);
         return scrollerLength(newLength);
     }
 

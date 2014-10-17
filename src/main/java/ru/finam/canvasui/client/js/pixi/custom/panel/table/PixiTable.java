@@ -1,10 +1,11 @@
 package ru.finam.canvasui.client.js.pixi.custom.panel.table;
 
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainerImpl;
 import ru.finam.canvasui.client.js.pixi.custom.panel.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.channel.ComponentUpdateEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithShowSizes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * Created by ikusch on 27.08.14.
  */
-public class PixiTable extends CustomComponentContainer implements UpdatableComponent {
+public class PixiTable extends CustomComponentContainerImpl implements UpdatableComponent, ComponentWithShowSizes<DisplayObjectContainer> {
 
     private static final int DEFAULT_CELL_WIDTH = 70;
     private static final int DEFAULT_CELL_HEIGHT = 30;
@@ -120,6 +121,24 @@ public class PixiTable extends CustomComponentContainer implements UpdatableComp
     @Override
     public ComponentUpdateEventChannel componentUpdateEventChannel() {
         return componentUpdateEventChannel;
+    }
+
+    @Override
+    public double showWidth() {
+        int w = 0;
+        for (int i = 0; i < colsCount; ++i) {
+            w += colWidth(i);
+        }
+        return w;
+    }
+
+    @Override
+    public double showHeight() {
+        int h = 0;
+        for (int i = 0; i < rowsCount; ++i) {
+            h += rowHeight(i);
+        }
+        return h;
     }
 //
 }

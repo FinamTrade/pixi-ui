@@ -6,14 +6,14 @@ import ru.finam.canvasui.client.js.pixi.DisplayObject;
 import ru.finam.canvasui.client.js.pixi.Graphics;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
 import ru.finam.canvasui.client.js.pixi.Stage;
-import ru.finam.canvasui.client.js.pixi.custom.panel.BaseCustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.BaseCustomComponentContainerImpl;
 import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponent;
 import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 
 /**
  * Created by ikusch on 19.08.14.
  */
-public class LayoutedStage extends BaseCustomComponentContainer<Stage> {
+public class LayoutedStage extends BaseCustomComponentContainerImpl<Stage> {
 
     protected LayoutedStage(Stage stage) {
         super(stage);
@@ -27,7 +27,7 @@ public class LayoutedStage extends BaseCustomComponentContainer<Stage> {
         this(StageFactory.newInstance(bgColor, b));
     }
 
-    public final void addChildToCenter(CustomComponentContainer child, int width, int height) {
+    public final void addChildToCenter(CustomComponent child, int width, int height) {
         addChildToCenter(child.getMainComponent(), width, height);
     }
 

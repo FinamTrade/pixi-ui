@@ -1,15 +1,15 @@
 package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 
 import ru.finam.canvasui.client.js.pixi.*;
-import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainerImpl;
 
 import java.util.Date;
 
 /**
  * Created by ikusch on 03.09.2014.
  */
-public abstract class HasDraggableComponent extends CustomComponentContainer {
+public abstract class ComponentWithDraggable extends CustomComponentContainerImpl {
 
     protected static final int ORIENTATIONS_LENGTH = ScrollOrientation.values().length;
     private static final long DRAG_TIME_TRESHOLD = 300;
@@ -24,7 +24,7 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
 
     protected abstract DisplayObject getMainDragComponent();
     protected abstract double draggingAlpha();
-    protected abstract DisplayObjectContainer getDraggableComponent();
+    protected abstract DisplayObject getDraggableComponent();
     protected abstract double getScrollerEdgeLength();
     protected abstract double dragEndEdge(ScrollOrientation scrollOrientation);
     protected abstract double startEdge(ScrollOrientation scrollOrientation);
@@ -34,11 +34,11 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
     protected abstract double defaultAlpha();
     protected abstract double dragWrapperSize(ScrollOrientation orientation);
 
-    protected HasDraggableComponent(DisplayObjectContainer mainComponent) {
+    protected ComponentWithDraggable(DisplayObjectContainer mainComponent) {
         super(mainComponent);
     }
 
-    protected HasDraggableComponent() {
+    protected ComponentWithDraggable() {
         this(DisplayObjectContainer.Factory.newInstance());
     }
 
@@ -49,20 +49,20 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         // use the mousedown and touchstart
         displayObject.mousedown = displayObject.touchstart = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithDraggable::touchStart(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         // set the events for when the mouse is released or a touch is released
         displayObject.mouseup = displayObject.mouseupoutside =
         displayObject.touchend = displayObject.touchendoutside = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithDraggable::touchEnd(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         };
 
         // set the callbacks for when the mouse or a touch moves
         displayObject.mousemove = displayObject.touchmove = function(data)
         {
-            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.HasDraggableComponent::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
+            that.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithDraggable::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
         }
     }-*/;
 
@@ -109,7 +109,10 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
         if (Math.abs(newOffset - currentOffset) > DRAG_OFFSET_DELTA_MAX) {
             newOffset = currentOffset + (Math.abs(newOffset - currentOffset) / (newOffset - currentOffset)) * DRAG_OFFSET_DELTA_MAX;
         }
-        double prevOffset = orientation.getOffset(dragStartPos);
+        double prevOffset = 0;
+        if (dragStartPos != null) {
+            prevOffset = orientation.getOffset(dragStartPos);
+        }
         long currentTime = new Date().getTime();
         if ( (! ( Math.abs(prevOffset - newOffset) < dragTreshold() && (( currentTime - dragEndTime ) >
                 DRAG_TIME_TRESHOLD)) )
@@ -137,8 +140,6 @@ public abstract class HasDraggableComponent extends CustomComponentContainer {
     protected void moveAndUpdateDraggableCopmonents(double newOffset, TouchEvent touchEvent,
                                                     ScrollOrientation orientation) {
         updateDraggableCopmonents(newOffset, touchEvent, orientation);
-        this.getDraggableComponent().getHeight();//magic
-        this.getDraggableComponent().getWidth();//magic
     }
 
     protected void updateDraggableCopmonentsWithWraper(double newOffset, TouchEvent touchEvent,

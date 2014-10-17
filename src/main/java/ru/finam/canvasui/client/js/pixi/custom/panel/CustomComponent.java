@@ -4,130 +4,54 @@ import ru.finam.canvasui.client.js.gsap.TimelineLite;
 import ru.finam.canvasui.client.js.pixi.*;
 
 /**
- * Created by ikusch on 28.08.2014.
+ * Created by ikusch on 14.10.2014.
  */
-public class CustomComponent<T extends DisplayObject> {
+public interface CustomComponent<T extends DisplayObject> {
 
-    private T mainComponent;
-    private boolean dragging;
-    private TimelineLite timeline;
+    T getMainComponent();
 
-    protected CustomComponent(T mainComponent) {
-        setMainComponent(mainComponent);
-    }
+    TimelineLite timeline();
 
-    protected void setMainComponent(T mainComponent) {
-        this.mainComponent = mainComponent;
-    }
+    void setDragging( boolean b );
 
-    public T getMainComponent() {
-        return this.mainComponent;
-    }
+    boolean isDragging();
 
-    public TimelineLite timeline() {
-        if (timeline == null)
-            timeline = TimelineLite.Factory.newInstance();
-        return timeline;
-    }
+    void setAlpha(double a);
 
-    public void setDragging( boolean b ) {
-        this.dragging = b;
-    }
+    double getAlpha();
 
-    public boolean isDragging() {
-        return this.dragging;
-    }
+    Rectangle getBounds();
 
-    public void setAlpha(double a) {
-        getMainComponent().setAlpha(a);
-    }
+    void setMask(Graphics mask);
 
-    public double getAlpha() {
-        return getMainComponent().getAlpha();
-    }
+    Graphics getMask();
 
-    public Rectangle getBounds() {
-        return getMainComponent().getBounds();
-    }
+    void setHitArea(Rectangle hitArea);
 
-    public void setMask(Graphics mask) {
-        getMainComponent().setMask(mask);
-    }
+    Rectangle getHitArea();
 
-    public Graphics getMask() {
-        return getMainComponent().getMask();
-    }
+    void setPosition(Point position);
 
-    public void setHitArea(Rectangle hitArea) {
-        getMainComponent().setHitArea(hitArea);
-    }
+    void setAlpha(int alpha);
 
-    public Rectangle getHitArea() {
-        return getMainComponent().getHitArea();
-    }
+    Point getPosition();
 
-    public void setPosition(Point position) {
-        getMainComponent().setPosition(position);
-    }
+    double getBoundedWidth();
 
-    public void setAlpha(int alpha) {
-        this.getMainComponent().setAlpha(alpha);
-    }
+    double getBoundedHeight();
 
-    public Point getPosition() {
-        return this.getMainComponent().getPosition();
-    }
+    Rectangle getLocalBounds();
 
-    public static double getBoundedWidth(DisplayObject displayObject) {
-        return displayObject.getBounds() == null ? 0 : ( displayObject.getBounds().getWidth() + 2 * displayObject.getBounds().getX() );
-    }
+    DisplayObjectContainer getParent();
 
-    public static double getBoundedHeight(DisplayObject displayObject) {
-        return displayObject.getBounds() == null ? 0 : ( displayObject.getBounds().getHeight() + 2 * displayObject.getBounds().getY() );
-    }
+    void setInteractive(boolean b);
 
-    public double getBoundedWidth() {
-        return getBounds() == null ? 0 : ( getBounds().getWidth() + 2 * getBounds().getX() );
-    }
+    void setButtonMode(boolean b);
 
-    public double getBoundedHeight() {
-        return getBounds() == null ? 0 : ( getBounds().getHeight() + 2 * getBounds().getY() );
-    }
+    boolean getButtonMode();
 
-    public Rectangle getLocalBounds() {
-        return this.getMainComponent().getLocalBounds();
-    }
+    boolean getInteractive();
 
-    public void removeChild(DisplayObject displayObject) {
-        this.getMainComponent().removeChild(displayObject);
-    }
-
-    public void removeChild(CustomComponentContainer customComponentContainer) {
-        this.getMainComponent().removeChild(customComponentContainer.getMainComponent());
-    }
-
-    public DisplayObjectContainer getParent() {
-        return getMainComponent().getParent();
-    }
-
-    public void setInteractive(boolean b) {
-        getMainComponent().setInteractive(b);
-    }
-
-    public void setButtonMode(boolean b) {
-        getMainComponent().setButtonMode(b);
-    }
-
-    public boolean getButtonMode() {
-        return false;
-    }
-
-    public boolean getInteractive() {
-        return getMainComponent().getInteractive();
-    }
-
-    public Rectangle croppedBounds() {
-        return Rectangle.Factory.newInstance(0, 0, (int) getBoundedWidth(), (int) getBoundedHeight());
-    }
+    Rectangle croppedBounds();
 
 }

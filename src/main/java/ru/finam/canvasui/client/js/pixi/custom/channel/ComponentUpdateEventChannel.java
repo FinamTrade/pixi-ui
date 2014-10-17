@@ -1,6 +1,5 @@
 package ru.finam.canvasui.client.js.pixi.custom.channel;
 
-import com.google.gwt.event.dom.client.MouseWheelEvent;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
 
 /**

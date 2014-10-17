@@ -7,6 +7,8 @@ import ru.finam.canvasui.client.js.pixi.DisplayObjectContainer;
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.panel.SimplePixiPanel;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithShowSizes;
+import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ComponentWithShowSizesImpl;
 import ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel;
 
 /**
@@ -20,7 +22,7 @@ public class TimelineTest1 extends PixiScrollerTest {
     public void fillStage(int width, int height, String... images) {
 
         stage.clear();
-        ScrollPanel scrollPanel = fixedSizeScrollPanel1(new SimplePixiPanel(newSampleImage(images[2])));
+        ScrollPanel scrollPanel = fixedSizeScrollPanel1(new ComponentWithShowSizesImpl(newSampleImage(images[2])));
         stage.addChildToCenter(scrollPanel, width, height);
         DisplayObjectContainer d = newSampleImage(images[1]);
         stage.addChild(d);
@@ -75,9 +77,9 @@ public class TimelineTest1 extends PixiScrollerTest {
         return { alpha:0 };
     }-*/;
 
-    private static ScrollPanel fixedSizeScrollPanel1(CustomComponentContainer innerPanel) {
-        int width = (int) innerPanel.getWidth();
-        int height = (int) innerPanel.getHeight();
+    private static ScrollPanel fixedSizeScrollPanel1(ComponentWithShowSizes innerPanel) {
+        int width = (int) innerPanel.showWidth();
+        int height = (int) innerPanel.showHeight();
         ScrollPanel scrollPanel =  ScrollPanel.newInstance(innerPanel, (int) ( width / 1.4), (int) ( height / 1.4 ), true);
         return scrollPanel;
     }

@@ -2,12 +2,12 @@ package ru.finam.canvasui.client.js.pixi.custom.panel.masked;
 
 import ru.finam.canvasui.client.js.pixi.PointFactory;
 import ru.finam.canvasui.client.js.pixi.Rectangle;
-import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
+import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainerImpl;
 
 /**
  * Created by ikusch on 26.09.2014.
  */
-public class MaskedPanel extends CustomComponentContainer implements HasMask {
+public class MaskedPanel extends CustomComponentContainerImpl implements HasMask {
 
     private MaskObject maskObject;
     private double visibleAreaX;

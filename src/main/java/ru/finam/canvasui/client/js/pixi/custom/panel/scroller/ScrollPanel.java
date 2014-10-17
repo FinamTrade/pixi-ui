@@ -3,13 +3,14 @@ package ru.finam.canvasui.client.js.pixi.custom.panel.scroller;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import ru.finam.canvasui.client.js.gsap.easing.Ease;
-import ru.finam.canvasui.client.js.gsap.easing.Quint;
+import ru.finam.canvasui.client.js.gsap.easing.Power1;
 import ru.finam.canvasui.client.js.pixi.*;
 import ru.finam.canvasui.client.js.pixi.custom.channel.EventListener;
 import ru.finam.canvasui.client.js.pixi.custom.channel.MouseWheelEventChannel;
+import ru.finam.canvasui.client.js.pixi.custom.channel.ScrollEventChannel;
 import ru.finam.canvasui.client.js.pixi.custom.event.ComponentUpdateEvent;
+import ru.finam.canvasui.client.js.pixi.custom.event.ScrollEvent;
 import ru.finam.canvasui.client.js.pixi.custom.event.TouchEvent;
-import ru.finam.canvasui.client.js.pixi.custom.panel.CustomComponentContainer;
 import ru.finam.canvasui.client.js.pixi.custom.panel.UpdatableComponent;
 import ru.finam.canvasui.client.js.pixi.custom.panel.masked.HasMask;
 import ru.finam.canvasui.client.js.pixi.custom.panel.masked.MaskObject;
@@ -20,7 +21,7 @@ import java.util.Set;
 /**
  * Created by ikusch on 19.08.14.
  */
-public class ScrollPanel extends HasKinematicDraggableComponent implements HasMask {
+public class ScrollPanel extends ComponentWithKinematicDraggable implements HasMask {
 
     private static final double DEF_WRAPPER_SIZE = 100;
     private static final int MOUSE_WHEEL_SCROLL_K = 3;
@@ -29,10 +30,9 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     private static final double SCROLLER_EDGE_LENGTH = 0;
     private static final double DRAG_TRESHOLD = 8;
     private Scroller[] scrollers = new Scroller[ORIENTATIONS_LENGTH];
-    private Rectangle maskBounds;
     public MaskObject maskObject;
     private boolean mouseOvered = false;
-    private CustomComponentContainer innerPanel;
+    private ComponentWithShowSizes<DisplayObject> innerPanel;
     private ScrollCallback scrollTo = new ScrollCallback() {
         @Override
         public void onScroll(double pos, ScrollOrientation orientation) {
@@ -43,25 +43,24 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     private Set<Runnable> actionsWhenFlickComplete = new HashSet<>();
 
     protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds,
-                          CustomComponentContainer innerPanel, boolean drawBorders, Ease ease) {
+                          ComponentWithShowSizes innerPanel, boolean drawBorders, Ease ease) {
         this(mainContainer, maskBounds, innerPanel, drawBorders);
         setEase(ease);
     }
 
-    protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds, CustomComponentContainer innerPanel, boolean drawBorders) {
+    protected ScrollPanel(DisplayObjectContainer mainContainer, Rectangle maskBounds, ComponentWithShowSizes innerPanel, boolean drawBorders) {
         super(mainContainer);
         this.innerPanel = innerPanel;
-        this.maskBounds = maskBounds;
         addChild(innerPanel);
-        this.maskObject = newMaskObject();
+        this.maskObject = newMaskObject(maskBounds);
         addChild(this.maskObject.mainComponent());
         innerPanel.setPosition(PointFactory.newInstance(0, 0));
         this.maskObject.mainComponent().setPosition(PointFactory.newInstance(0, 0));
         setMask(this.maskObject.mainComponent());
         if (drawBorders)
-            drawBorders(maskBounds);
+            drawBorders(maskObject.getMaskBounds());
         updateScrollers();
-        setHitArea(maskBounds);
+        setHitArea(maskObject.getMaskBounds());
         setMouseOverEvents(this);
         setTouchEvents();
         setPosition(PointFactory.newInstance(0, 0));
@@ -70,7 +69,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
 
     private void setTouchEvents() {
         this.innerPanel.setInteractive(true);
-        this.innerPanel.setHitArea(this.innerPanel.croppedBounds());
+        updateHitArea();
         createTouchDraggable(this.innerPanel.getMainComponent());
     }
 
@@ -93,7 +92,6 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         innerPanel.touchmove = function(data)
         {
             theScrollPanel.@ru.finam.canvasui.client.js.pixi.custom.panel.scroller.ScrollPanel::touchMove(Lru/finam/canvasui/client/js/pixi/MouseEvent;Lru/finam/canvasui/client/js/pixi/custom/event/TouchEvent;)(data, this);
-            //console.log('innerPanel.height = ' + innerPanel.height);
         }
 
     }-*/;
@@ -108,7 +106,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     }
 
     protected double getVisibleLength(ScrollOrientation orientation) {
-        return orientation.getLength(maskBounds);
+        return orientation.getLength(maskObject.getMaskBounds());
     }
 
     protected double dragEndEdge(ScrollOrientation orientation) {
@@ -130,7 +128,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     protected void touchStart(MouseEvent data, TouchEvent that) {
         double newCoordX = data.getLocalPosition(that.getParent()).getX();
         double newCoordY = data.getLocalPosition(that.getParent()).getY();
-        if (pointWithinRectangle(PointFactory.newInstance(newCoordX, newCoordY), this.maskBounds)) {
+        if (pointWithinRectangle(PointFactory.newInstance(newCoordX, newCoordY), this.maskObject.getMaskBounds())) {
             super.touchStart(data, that);
         }
     }
@@ -158,7 +156,7 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     }
 
     @Override
-    protected DisplayObjectContainer getDraggableComponent() {
+    protected DisplayObject getDraggableComponent() {
         return this.innerPanel.getMainComponent();
     }
 
@@ -194,7 +192,6 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     }
 
     private void onInnerPanelUpdate() {
-        GWT.log("onInnerPanelUpdate!");
         if (!flickTimeline().isActive()) {
             updateScrollers();
             setTouchEvents();
@@ -253,9 +250,17 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
 
     }-*/;
 
+    public void addNewScrollListener(EventListener<ScrollEvent> scrollEventListener) {
+        ScrollEventChannel.getInstance().addListener(scrollEventListener);
+    }
+
     public void doScrollTo(double newPos, ScrollOrientation orientation) {
-        //orientation.setOffset(this.getInnerPanel().getPosition(), scrollMaxOffset[orientation.ordinal()] * newPos);
         moveAndUpdateDraggableCopmonents(scrollMaxOffset[orientation.ordinal()] * newPos, null, orientation);
+        ScrollEventChannel.getInstance().fire(new ScrollEvent(newPos));
+    }
+
+    public double scrollPosition(ScrollOrientation orientation) {
+        return this.scrollers[orientation.ordinal()] == null ? 0 : this.scrollers[orientation.ordinal()].getScrollPosition();
     }
 
     public void doScrollTo(ScrollOrientation orientation) {
@@ -266,8 +271,6 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         if (this.scrollers[orientation.ordinal()] != null) {
             if (flickTimeline().isActive()) {
                 killFlickAnimation();
-                innerPanel.getHeight();
-                innerPanel.getWidth();
             }
             onFlickComplete();
             doScrollTo(newPos, orientation);
@@ -278,21 +281,21 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         return orientation.getOffset(this.getInnerPanel().getPosition()) / scrollMaxOffset[orientation.ordinal()];
     }
 
-    private CustomComponentContainer getInnerPanel() {
+    private ComponentWithShowSizes getInnerPanel() {
         return this.innerPanel;
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, boolean drawBorders) {
-        return newInstance(innerPanel, innerPanel.getBounds(), drawBorders, Quint.Static.easeOut());
+    public static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, boolean drawBorders) {
+        return newInstance(innerPanel, innerPanel.getBounds(), drawBorders, Power1.Static.easeOut());
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, Rectangle maskBounds,
+    private static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, Rectangle maskBounds,
                                           boolean drawBorders, Ease ease) {
         return new ScrollPanel(DisplayObjectContainer.Factory.newInstance(), maskBounds, innerPanel, drawBorders, ease);
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, Rectangle maskBounds, boolean drawBorders) {
-        return newInstance(innerPanel, maskBounds, drawBorders, Quint.Static.easeOut());
+    private static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, Rectangle maskBounds, boolean drawBorders) {
+        return newInstance(innerPanel, maskBounds, drawBorders, Power1.Static.easeOut());
     }
 
     private static void setMouseOverEvents(ScrollPanel scrollPanel) {
@@ -319,35 +322,46 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
     }
 
     private void newScroller(double k, ScrollOrientation orientation) {
-        scrollers[orientation.ordinal()] = Scroller.newInstance(orientation.getLength(this.maskBounds), k,
+        scrollers[orientation.ordinal()] = Scroller.newInstance(orientation.getLength(this.maskObject.getMaskBounds()), k,
                 this.scrollTo, 0, orientation, getEase());
         addChild(scrollers[orientation.ordinal()].getMainComponent());
-        double offset = orientation.getOrtogonalLength(this.maskBounds) - Scroller.DEFAULT_WIDE * 2;
+        double offset = orientation.getOrtogonalLength(this.maskObject.getMaskBounds()) - Scroller.DEFAULT_WIDE * 2;
         scrollers[orientation.ordinal()].setPosition(orientation.newPoint(0, offset));
     }
 
     private void updateScrollers() {
-        GWT.log("updateScrollers!");
         for (ScrollOrientation orientation : ScrollOrientation.values()) {
+            updateScroller(orientation);
+        }
+    }
 
-            double length1 = orientation.getBoundedLength(getInnerPanel());
-            if (orientation.equals(ScrollOrientation.VERTICAL))
-                length1 += 1;
-            double length2 = orientation.getLength(this.maskBounds);
-            GWT.log("length1 = " + length1);
-            GWT.log("length2 = " + length2);
-            double maxScrollOffset = 0;
-            if (length1 > length2)
-                maxScrollOffset = -(length1 - length2);
-            GWT.log("maxScrollOffset = " + maxScrollOffset);
-            scrollMaxOffset[orientation.ordinal()] = maxScrollOffset;
-            double k = length2 / length1;
-            if (k < 1) {
-                updateScroller(k, orientation);
-            } else {
-                removeScroller(orientation);
-                doScrollTo(0, orientation);
-            }
+    private void updateScroller(ScrollOrientation orientation) {
+        double length1 = orientation.getLength(getInnerPanel());
+        if (orientation.equals(ScrollOrientation.VERTICAL) && length1 > 0) {
+            length1 += 1;
+        }
+        double length2 = orientation.getLength(this.maskObject.getMaskBounds());
+        double maxScrollOffset = 0;
+        if (length1 > length2) {
+            maxScrollOffset = -(length1 - length2);
+        }
+        scrollMaxOffset[orientation.ordinal()] = maxScrollOffset;
+        if (length1 > 0 && length2 > 0) {
+            updateScroller(length1, length2, orientation);
+        }
+    }
+
+    private void updateScroller(double length1, double length2, ScrollOrientation orientation) {
+        double k = length2 / length1;
+        GWT.log("orientation = " + orientation.name());
+        GWT.log("length1 = " + length1);
+        GWT.log("length2 = " + length2);
+        GWT.log("k = " + k);
+        if (k < 1) {
+            updateScroller(k, orientation);
+        } else {
+            removeScroller(orientation);
+            doScrollTo(0, orientation);
         }
     }
 
@@ -376,8 +390,8 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         return flickTimeline().isActive();
     }
 
-    private MaskObject newMaskObject() {
-        return new MaskObject(this.maskBounds.getX(), this.maskBounds.getY(), this.maskBounds.getWidth(), this.maskBounds.getHeight());
+    private MaskObject newMaskObject(Rectangle maskBounds) {
+        return new MaskObject(maskBounds.getX(), maskBounds.getY(), maskBounds.getWidth(), maskBounds.getHeight());
     }
 
     private void drawBorders(Rectangle bounds) {
@@ -387,38 +401,35 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         addChild(graphics);
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height,
+    public static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, int width, int height,
                                           boolean drawBorders, Ease ease) {
         ScrollPanel scrollPanel = newInstance(innerPanel, Rectangle.Factory.newInstance(0, 0, width, height + 1),
                 drawBorders, ease);
         return scrollPanel;
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height,
+    public static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, int width, int height,
                                           boolean drawBorders) {
-        return newInstance(innerPanel, width, height, drawBorders, Quint.Static.easeOut());
+        return newInstance(innerPanel, width, height, drawBorders, Power1.Static.easeOut());
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel, int width, int height) {
+    public static ScrollPanel newInstance(ComponentWithShowSizes innerPanel, int width, int height) {
         return newInstance(innerPanel, width, height, false);
     }
 
-    public static ScrollPanel newInstance(CustomComponentContainer innerPanel) {
-        return newInstance(innerPanel, (int) innerPanel.getBoundedWidth(), (int) innerPanel.getBoundedHeight(), false);
+    public static ScrollPanel newInstance(ComponentWithShowSizes innerPanel) {
+        return newInstance(innerPanel, (int) innerPanel.showWidth(), (int) innerPanel.showHeight(), false);
     }
 
     @Override
     protected void killOtherAnimations() {
         if (scrollers[ScrollOrientation.HORIZONTAL.ordinal()] != null) {
-            //scrollers[ScrollOrientation.HORIZONTAL.ordinal()].killAnimations();
             if (scrollers[ScrollOrientation.HORIZONTAL.ordinal()].resizeTimeline().getProgress() < 1) {
                 scrollers[ScrollOrientation.HORIZONTAL.ordinal()].resizeTimeline().progress(1, true);
                 scrollers[ScrollOrientation.HORIZONTAL.ordinal()].killAnimations();
             }
         }
         if (scrollers[ScrollOrientation.VERTICAL.ordinal()] != null) {
-            //scrollers[ScrollOrientation.VERTICAL.ordinal()].killAnimations();
-            //scrollers[ScrollOrientation.VERTICAL.ordinal()].completeResizeTimeLineImmediately();
             if (scrollers[ScrollOrientation.VERTICAL.ordinal()].resizeTimeline().getProgress() < 1) {
                 scrollers[ScrollOrientation.VERTICAL.ordinal()].resizeTimeline().progress(1, true);
                 scrollers[ScrollOrientation.VERTICAL.ordinal()].killAnimations();
@@ -426,24 +437,38 @@ public class ScrollPanel extends HasKinematicDraggableComponent implements HasMa
         }
     }
 
+    private void updateHitArea() {
+        this.innerPanel.setHitArea(Rectangle.Factory.newInstance(0, 0, innerPanel.showWidth(), innerPanel.showHeight()));
+    }
+
     @Override
     public void updateMaskHeight(double height) {
-        maskBounds.setHeight(height);
+        if (height > 0) {
+            height += 1;
+        }
         this.maskObject.drawMask(maskObject.getMaskBounds().getX(), maskObject.getMaskBounds().getY(), maskObject.getMaskBounds().getWidth(), height);
+        updateHitArea();
+        removeScroller(ScrollOrientation.VERTICAL);
     }
 
     @Override
     public void updateMaskWidth(double width) {
         this.maskObject.drawMask(maskObject.getMaskBounds().getX(), maskObject.getMaskBounds().getY(), width, maskObject.getMaskBounds().getHeight());
+        updateHitArea();
+        removeScroller(ScrollOrientation.HORIZONTAL);
     }
 
     @Override
     public void updateMaskX(double x) {
         this.maskObject.drawMask(x, maskObject.getMaskBounds().getY(), maskObject.getMaskBounds().getWidth(), maskObject.getMaskBounds().getHeight());
+        updateHitArea();
+        removeScroller(ScrollOrientation.HORIZONTAL);
     }
 
     @Override
     public void updateMaskY(double y) {
         this.maskObject.drawMask(maskObject.getMaskBounds().getX(), y, maskObject.getMaskBounds().getWidth(), maskObject.getMaskBounds().getHeight());
+        updateHitArea();
+        removeScroller(ScrollOrientation.VERTICAL);
     }
 }
